@@ -7,7 +7,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 # Sources
 set (burgercpp_SRC
-        "src/main.cpp")
+        "src/main.cpp"
+        "src/scene.cpp"
+        "src/objloader.h"
+        "src/material.h"
+        "src/ray.cpp"
+        "src/rfimage.h"
+        "src/psf.h"
+        "src/volume.h"
+        "src/wavefront/tiny_obj_loader.cpp")
 
 add_executable(burgercpp ${burgercpp_SRC})
 
@@ -19,8 +27,8 @@ message("Bullet lib directory: ${BULLET_LIB_DIR}")
 include_directories(${BULLET_SRC_DIR})
 
 target_link_libraries(burgercpp
+    ${BULLET_LIB_DIR}/libBullet3Common.a
     ${BULLET_LIB_DIR}/libBulletDynamics.a
     ${BULLET_LIB_DIR}/libBulletCollision.a
     ${BULLET_LIB_DIR}/libLinearMath.a
-    ${BULLET_LIB_DIR}/libBulletSoftBody.a
     )
