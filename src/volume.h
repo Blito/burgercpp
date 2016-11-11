@@ -26,7 +26,8 @@ public:
             {
                 for (unsigned int k = 0; k < size; k++)
                 {
-                    matrix[i][j][k] = distribution(generator);
+                    matrix[i][j][k].texture_noise = distribution(generator);
+                    matrix[i][j][k].scattering_probability = distribution(generator);
                 }
             }
         }
@@ -37,7 +38,12 @@ public:
         return static_cast<float>(resolution_micrometers)/1000.0f;
     }
 
-    float get(const float x_millis, const float y_millis, const float z_millis) const
+    /**
+     * Gets the scattering value for a tissue with given properties at a fixed point in space.
+     * @sa Eq. 15 in Burger13
+     */
+    float get_scattering(const float scattering_density, const float scattering_mu, const float scattering_sigma,
+              const float x_millis, const float y_millis, const float z_millis) const
     {
         constexpr float resolution = resolution_micrometers / 1000.0f; // [mm]
 
@@ -46,11 +52,21 @@ public:
         const unsigned int y = static_cast<unsigned int>(y_millis / resolution) % size;
         const unsigned int z = static_cast<unsigned int>(z_millis / resolution) % size;
 
-        return matrix[x][y][z];
+        const auto & voxel = matrix[x][y][z];
+
+        return voxel.scattering_probability >= scattering_density ?
+                    voxel.texture_noise * scattering_sigma + scattering_mu :
+                    0.0f;
     }
 
 private:
-    std::array<std::array<std::array<float, size>, size>, size> matrix;
+    struct voxel_values
+    {
+        float texture_noise;
+        float scattering_probability;
+    };
+
+    std::array<std::array<std::array<voxel_values, size>, size>, size> matrix;
 };
 
 #endif // VOLUME_H

@@ -39,11 +39,11 @@ public:
 
     void show()
     {
-        cv::Mat normalized;
-        image.convertTo(normalized, -1, 0.5, 0.5);
+        //cv::Mat normalized;
+        //image.convertTo(normalized, -1, 0.5, 0.5);
 
         cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE );
-        cv::imshow("Display window", normalized );
+        cv::imshow("Display window", image );
 
         cv::waitKey(0);
     }

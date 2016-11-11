@@ -20,7 +20,7 @@ using rf_image_ = rf_image<transducer_elements, max_travel_time, static_cast<uns
 
 namespace
 {
-    float convolution(const volume_ & v, const psf_ & p, const float x, const float y, const float z)
+    float convolution(const volume_ & v, const material & m, const psf_ & p, const float x, const float y, const float z)
     {
         float total = 0.0f;
 
@@ -36,7 +36,7 @@ namespace
                 {
                     float z_volume = z + k - p.get_elevation_size()/2 * v.get_resolution_in_millis();
 
-                    total += v.get(x_volume, y_volume, z_volume) * p.get(i,j,k);
+                    total += v.get_scattering(m.mu1, m.mu0, m.sigma, x_volume, y_volume, z_volume) * p.get(i,j,k);
                 }
             }
         }
@@ -48,7 +48,8 @@ namespace
 int main(int argc, char** argv)
 {
 
-    static const volume_ volume;
+    static const volume_ texture_volume;
+
     const psf_ psf(transducer_frequency, 0.1f, 0.3f, 0.4f);
 
     rf_image_ rf_image;
@@ -80,7 +81,7 @@ int main(int argc, char** argv)
 
                 for (unsigned int step = 0; step < steps && time_elapsed < max_travel_time; step++)
                 {
-                    float echo = intensity * convolution(volume, psf, point.getX(), point.getY(), point.getZ());
+                    float echo = intensity * convolution(texture_volume, segment.media, psf, point.getX(), point.getY(), point.getZ());
 
                     rf_image.add_echo(ray_i, echo, time_elapsed);
 

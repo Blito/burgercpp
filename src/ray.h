@@ -25,6 +25,7 @@ struct segment
     btVector3 from, to, direction;
     float initial_intensity, attenuation;
     unsigned int distance_traveled; // [mm]
+    const material & media;
 };
 
 struct collision
