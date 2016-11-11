@@ -17,19 +17,24 @@ class volume
 public:
     volume()
     {
-//        std::default_random_engine generator;
-//        std::normal_distribution<double> distribution(0.0,1.0);
+        std::default_random_engine generator;
+        std::normal_distribution<double> distribution(0.0,1.0);
 
-//        for (unsigned int i = 0; i < size; i++)
-//        {
-//            for (unsigned int j = 0; j < size; j++)
-//            {
-//                for (unsigned int k = 0; k < size; k++)
-//                {
-//                    matrix[i][j][k] = distribution(generator);
-//                }
-//            }
-//        }
+        for (unsigned int i = 0; i < size; i++)
+        {
+            for (unsigned int j = 0; j < size; j++)
+            {
+                for (unsigned int k = 0; k < size; k++)
+                {
+                    matrix[i][j][k] = distribution(generator);
+                }
+            }
+        }
+    }
+
+    constexpr float get_resolution_in_millis() const
+    {
+        return static_cast<float>(resolution_micrometers)/1000.0f;
     }
 
     float get(const float x_millis, const float y_millis, const float z_millis) const
@@ -41,7 +46,7 @@ public:
         const unsigned int y = static_cast<unsigned int>(y_millis / resolution) % size;
         const unsigned int z = static_cast<unsigned int>(z_millis / resolution) % size;
 
-        //return matrix[x][y][z];
+        return matrix[x][y][z];
     }
 
 private:

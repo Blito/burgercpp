@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <cassert>
 
 template std::array<std::vector<ray_physics::segment>, 256> scene::cast_rays<256>();
 
@@ -28,26 +29,32 @@ void scene::init()
         material_id material;
     };
 
-    std::array<mesh,11> meshes
+//    std::array<mesh,11> meshes
+//    {{
+//        {"aorta.obj", true, {152.533512115f, 174.472991943f, 105.106495678f}, material_id::BLOOD},
+//        {"bones.obj", true, {188.265544891f, 202.440551758f, 105.599998474f}, material_id::BONE},
+//        {"liver.obj", true, {141.238292694f, 176.429901123f, 130.10585022f}, material_id::LIVER},
+//        {"cava.obj", true,  {206.332504272f, 192.29649353f, 104.897496045f}, material_id::BLOOD},
+//        {"right_kidney.obj", true, {118.23374939f, 218.907501221f, 53.6022927761f}, material_id::KIDNEY},
+//        {"left_kidney.obj", true,  {251.052993774f, 227.63949585f, 64.8468027115f}, material_id::KIDNEY},
+//        {"right_suprarrenal.obj", true, {152.25050354f, 213.971496582f, 115.338005066f}, material_id::SUPRARRENAL},
+//        {"left_suprarrenal.obj", true,  {217.128997803f, 209.525497437f, 102.477149963f}, material_id::SUPRARRENAL},
+//        {"gallbladder.obj", true, {128.70715332f, 146.592498779f, 112.361503601f}, material_id::GALLBLADDER},
+//        {"skin.obj", true,  {188.597551346f, 199.367202759f, 105.622316509f}, material_id::BONE},
+//        {"porta.obj", true, {182.364089966f, 177.214996338f, 93.0034988523f}, material_id::BLOOD}
+//    }};
+
+    std::array<mesh,2> meshes
     {{
-        {"aorta.obj", true, {152.533512115f, 174.472991943f, 105.106495678f}, material_id::BLOOD},
-        {"bones.obj", true, {188.265544891f, 202.440551758f, 105.599998474f}, material_id::BONE},
-        {"liver.obj", true, {141.238292694f, 176.429901123f, 130.10585022f}, material_id::LIVER},
-        {"cava.obj", true,  {206.332504272f, 192.29649353f, 104.897496045f}, material_id::BLOOD},
-        {"right_kidney.obj", true, {118.23374939f, 218.907501221f, 53.6022927761f}, material_id::KIDNEY},
-        {"left_kidney.obj", true,  {251.052993774f, 227.63949585f, 64.8468027115f}, material_id::KIDNEY},
-        {"right_suprarrenal.obj", true, {152.25050354f, 213.971496582f, 115.338005066f}, material_id::SUPRARRENAL},
-        {"left_suprarrenal.obj", true,  {217.128997803f, 209.525497437f, 102.477149963f}, material_id::SUPRARRENAL},
-        {"gallbladder.obj", true, {128.70715332f, 146.592498779f, 112.361503601f}, material_id::GALLBLADDER},
-        {"skin.obj", true,  {188.597551346f, 199.367202759f, 105.622316509f}, material_id::BONE},
-        {"porta.obj", true, {182.364089966f, 177.214996338f, 93.0034988523f}, material_id::BLOOD}
+        {"BOX.obj", true, {0,0,0}, material_id::LIVER},
+        {"SPHERE.obj", true, {0,0,0}, material_id::BLOOD}
     }};
 
     for (const auto & mesh : meshes)
     {
         const auto full_path = working_dir + mesh.filename;
 
-        auto object = add_rigidbody_from_obj(full_path, mesh.deltas, 0.1f);
+        auto object = add_rigidbody_from_obj(full_path, mesh.deltas, 1.0f);
 
         // TODO: check the lifetime of this thing
         auto properties = new organ_properties(mesh.material);
@@ -77,7 +84,6 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
         btVector3 initial_pos(-14,1.2,-3);
         const float ray_start_step { 0.02f };
 
-        std::array<std::vector<segment>, ray_count> segments;
         for (auto & segments_vector : segments)
         {
             segments_vector.reserve(std::pow(2, ray::max_depth));
@@ -101,6 +107,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                     materials[material_id::GEL],
                     initial_intensity,
                     frequency,
+                    0,                                                   // distance traveled
                     0                                                    // previous ray
                 };
                 ray_stack.push_back(first_ray);
@@ -127,10 +134,11 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                     organ_properties * organ = static_cast<organ_properties*>(closestResults.m_collisionObject->getUserPointer());
                     const auto & organ_material = organ ? materials[organ->mat_id] : ray_.media;
 
+
                     // Substract ray intensity according to distance traveled
-                    {
-                        ray_physics::travel(ray_, distance_in_mm(ray_.from, closestResults.m_hitPointWorld));
-                    }
+                    auto distance_before_hit = ray_.distance_traveled;
+                    ray_physics::travel(ray_, distance_in_mm(ray_.from, closestResults.m_hitPointWorld));
+
 
                     if (ray_.depth < ray::max_depth)
                     {
@@ -139,7 +147,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                         auto result = ray_physics::hit_boundary(ray_, closestResults.m_hitPointWorld, closestResults.m_hitNormalWorld, organ_material);
 
                         // Register collision creating a segment from the beggining of the ray to the collision point
-                        segments_vector.emplace_back(segment{ray_.from, closestResults.m_hitPointWorld, ray_.direction, ray_.intensity, ray_.media.attenuation});
+                        segments_vector.emplace_back(segment{ray_.from, closestResults.m_hitPointWorld, ray_.direction, ray_.intensity, ray_.media.attenuation, distance_before_hit});
 
                         // Spawn reflection and refraction rays
                         if (result.refraction.intensity > ray::intensity_epsilon)
@@ -158,7 +166,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                 else
                 {
                     // Ray did not reach another media, add a data point at its end.
-                    segments_vector.emplace_back(segment{ray_.from, to, ray_.direction, ray::intensity_epsilon, ray_.media.attenuation});
+                    //segments_vector.emplace_back(segment{ray_.from, to, ray_.direction, ray_.intensity, ray_.media.attenuation, ray_.distance_traveled + r_length});
                 }
             }
         }
@@ -221,6 +229,8 @@ float scene::distance_in_mm(const btVector3 & v1, const btVector3 & v2) const
 
 btVector3 scene::enlarge(const btVector3 & versor, float mm) const
 {
+    assert(versor.length2() < 1.1f);
+
     return mm/100.0f * btVector3 ( spacing[0] * versor.getX(),
                                    spacing[1] * versor.getY(),
                                    spacing[2] * versor.getZ() );
@@ -247,7 +257,8 @@ btRigidBody * scene::add_rigidbody_from_obj(const std::string & fileName, std::a
     btTransform startTransform;
     startTransform.setIdentity();
 
-    std::array<float, 3> origin { -18, -22, -5 };
+    //std::array<float, 3> origin { -18, -22, -5 }; // origin for organs scene
+    std::array<float, 3> origin { 0, 0, 0 };
     float pos[4] = {deltas[0]*_scaling[0]*_scaling[0],deltas[1]*_scaling[1]*_scaling[1],deltas[2]*_scaling[2]*_scaling[2],0};
     btVector3 position(pos[0] + origin[0], pos[1] + origin[1], pos[2] + origin[2]);
     startTransform.setOrigin(position);

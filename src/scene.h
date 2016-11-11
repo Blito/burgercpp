@@ -39,7 +39,7 @@ protected:
         material_id mat_id;
     };
 
-    const std::string working_dir { "data/ultrasound/" };
+    const std::string working_dir { "data/ultrasound/test/" };
 
     std::unordered_map<material_id, material, EnumClassHash> materials
     {

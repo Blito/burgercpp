@@ -17,10 +17,11 @@ ray_physics::hit_result ray_physics::hit_boundary(const ray & r, const btVector3
     }
 
     btScalar incidence_angle = r.direction.dot(-surface_normal);
-    if (incidence_angle < 0)
-    {
-        incidence_angle = r.direction.dot(surface_normal);
-    }
+    // TODO: Check if this if is needed.
+//    if (incidence_angle < 0)
+//    {
+//        incidence_angle = r.direction.dot(surface_normal);
+//    }
 
     const btVector3 reflection_direction = r.direction + 2*incidence_angle * surface_normal;
     const auto intensity_refl = reflected_intensity(r.intensity,
@@ -29,15 +30,16 @@ ray_physics::hit_result ray_physics::hit_boundary(const ray & r, const btVector3
     const auto intensity_refr = r.intensity - intensity_refl;
 
     // Add two more rays to the stack
-    ray refraction_ray { hit_point, refraction_direction, r.depth+1, media, intensity_refr > ray::intensity_epsilon ? intensity_refr : 0.0f, r.frequency, 0 };
+    ray refraction_ray { hit_point, refraction_direction, r.depth+1, media, intensity_refr > ray::intensity_epsilon ? intensity_refr : 0.0f, r.frequency, r.distance_traveled, 0 };
 
-    ray reflection_ray { hit_point, reflection_direction, r.depth+1, r.media, intensity_refl > ray::intensity_epsilon ? intensity_refl : 0.0f, r.frequency, 0 };
+    ray reflection_ray { hit_point, reflection_direction, r.depth+1, r.media, intensity_refl > ray::intensity_epsilon ? intensity_refl : 0.0f, r.frequency, r.distance_traveled, 0 };
 
     return { reflection_ray, refraction_ray };
 }
 
 void ray_physics::travel(ray & r, float mm)
 {
+    r.distance_traveled += mm;
     r.intensity = r.intensity * std::exp(-r.media.attenuation*(mm*0.1f)*r.frequency);
 }
 

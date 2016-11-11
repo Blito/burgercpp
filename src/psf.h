@@ -57,6 +57,21 @@ public:
         }
     }
 
+    constexpr size_t get_axial_size() const
+    {
+        return axial_size;
+    }
+
+    constexpr size_t get_lateral_size() const
+    {
+        return lateral_size;
+    }
+
+    constexpr size_t get_elevation_size() const
+    {
+        return elevation_size;
+    }
+
     float get(const unsigned int x, const unsigned int y, const unsigned int z) const
     {
         return values[x][y][z];

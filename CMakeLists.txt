@@ -32,3 +32,9 @@ target_link_libraries(burgercpp
     ${BULLET_LIB_DIR}/libBulletCollision.a
     ${BULLET_LIB_DIR}/libLinearMath.a
     )
+
+# OpenCV
+find_package(OpenCV REQUIRED)
+if (OpenCV_FOUND)
+  target_link_libraries(burgercpp ${OpenCV_LIBS})
+endif()
