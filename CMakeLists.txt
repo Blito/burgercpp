@@ -3,7 +3,7 @@ project(burgercpp)
 cmake_minimum_required(VERSION 3.2.0)
 
 # C++14 support
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -std=c++14")
 
 # Sources
 set (burgercpp_SRC

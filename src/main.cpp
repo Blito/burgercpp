@@ -96,6 +96,8 @@ int main(int argc, char** argv)
 
         }
 
+        rf_image.envelope();
+
         rf_image.show();
     }
 
