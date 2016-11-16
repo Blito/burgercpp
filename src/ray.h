@@ -23,7 +23,9 @@ struct ray
 struct segment
 {
     btVector3 from, to, direction;
+    float reflected_intensity; // reflected back to the transducer, at the end of the segment
     float initial_intensity, attenuation;
+
     unsigned int distance_traveled; // [mm]
     const material & media;
 };
@@ -34,7 +36,7 @@ struct collision
     unsigned short parent_collision; // position in collision vector
 };
 
-struct hit_result { ray reflection, refraction; };
+struct hit_result { float reflected_intensity; ray reflection, refraction; };
 
 hit_result hit_boundary(const ray & r, const btVector3 &hit_point, const btVector3 & surface_normal, const material & media);
 
@@ -47,7 +49,14 @@ float max_ray_length(const ray & r);
 
 btVector3 snells_law(const btVector3 & ray_direction, const btVector3 & surface_normal, float refr_index_1, float refr_index_2);
 
-float reflected_intensity(float intensity_in, float media_1, float incidence_angle, float media_2, float refracted_angle);
+/**
+ * Intensity of the reflected ray.
+ * IMPORTANT: This it NOT the intensity reflected back to the transducer.
+ */
+float reflection_intensity(const float intensity_in, const float media_1, const float incidence_angle, const float media_2, const float refracted_angle);
+
+// Intensity reflected back to the transducer when a ray passes through an interface.
+float reflected_intensity(const float ray_intensity, const float incidence_angle, const material & media_1, const material & media_2);
 
 } // end ray_physics
 

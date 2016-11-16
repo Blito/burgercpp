@@ -92,6 +92,9 @@ int main(int argc, char** argv)
                     constexpr auto k = 0.05f;
                     intensity *= std::exp(-segment.attenuation * axial_resolution*0.1f * transducer_frequency * k);
                 }
+
+                // Add reflection term, i.e. intensity directly reflected back to the transducer. See Burger13, Eq. 10.
+                rf_image.add_echo(ray_i, segment.reflected_intensity, starting_micros + time_step * (steps-1));
             }
 
         }

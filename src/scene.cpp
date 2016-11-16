@@ -47,7 +47,7 @@ void scene::init()
     std::array<mesh,2> meshes
     {{
         {"BOX.obj", true, {0,0,0}, material_id::LIVER},
-        {"SPHERE.obj", true, {0,0,0}, material_id::BLOOD}
+        {"SPHERE.obj", true, {0,0,0}, material_id::BONE}
     }};
 
     for (const auto & mesh : meshes)
@@ -147,7 +147,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                         auto result = ray_physics::hit_boundary(ray_, closestResults.m_hitPointWorld, closestResults.m_hitNormalWorld, organ_material);
 
                         // Register collision creating a segment from the beggining of the ray to the collision point
-                        segments_vector.emplace_back(segment{ray_.from, closestResults.m_hitPointWorld, ray_.direction, ray_.intensity, ray_.media.attenuation, distance_before_hit, ray_.media});
+                        segments_vector.emplace_back(segment{ray_.from, closestResults.m_hitPointWorld, ray_.direction, result.reflected_intensity, ray_.intensity, ray_.media.attenuation, distance_before_hit, ray_.media});
 
                         // Spawn reflection and refraction rays
                         if (result.refraction.intensity > ray::intensity_epsilon)
@@ -166,7 +166,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                 else
                 {
                     // Ray did not reach another media, add a data point at its end.
-                    //segments_vector.emplace_back(segment{ray_.from, to, ray_.direction, ray_.intensity, ray_.media.attenuation, ray_.distance_traveled + r_length, ray_.media);
+                    //segments_vector.emplace_back(segment{ray_.from, to, ray_.direction, 0.0f, ray_.intensity, ray_.media.attenuation, ray_.distance_traveled + r_length, ray_.media);
                 }
             }
         }
