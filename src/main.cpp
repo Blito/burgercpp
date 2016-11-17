@@ -95,6 +95,7 @@ int main(int argc, char** argv)
 
                 // Add reflection term, i.e. intensity directly reflected back to the transducer. See Burger13, Eq. 10.
                 rf_image.add_echo(ray_i, segment.reflected_intensity, starting_micros + time_step * (steps-1));
+
             }
 
         }

@@ -81,7 +81,8 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
     ///step the simulation
     if (m_dynamicsWorld)
     {
-        btVector3 initial_pos(-14,1.2,-3);
+        //btVector3 initial_pos(-14,1.2,-3);
+        btVector3 initial_pos(-10.5f,1.2,-3);
         const float ray_start_step { 0.02f };
 
         for (auto & segments_vector : segments)
@@ -120,11 +121,11 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                 auto ray_ = ray_stack.at(ray_stack.size()-1);
 
                 float r_length = ray_physics::max_ray_length(ray_);
-                auto to = ray_.from * 1.02f + enlarge(ray_.direction, r_length);
+                auto to = ray_.from + enlarge(ray_.direction, r_length);
 
                 btCollisionWorld::ClosestRayResultCallback closestResults(ray_.from,to);
 
-                m_dynamicsWorld->rayTest(ray_.from,to,closestResults);
+                m_dynamicsWorld->rayTest(ray_.from + 0.1f * ray_.direction,to,closestResults);
                 tests++;
 
                 ray_stack.pop_back();
