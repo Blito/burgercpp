@@ -225,7 +225,7 @@ float scene::distance_in_mm(const btVector3 & v1, const btVector3 & v2) const
     auto y_dist = abs(v1.getY() - v2.getY()) * spacing[1];
     auto z_dist = abs(v1.getZ() - v2.getZ()) * spacing[2];
 
-    return sqrt(pow(x_dist,2) + pow(y_dist,2) + pow(z_dist,2));
+    return sqrt(pow(x_dist,2) + pow(y_dist,2) + pow(z_dist,2)) * 10;
 }
 
 btVector3 scene::enlarge(const btVector3 & versor, float mm) const

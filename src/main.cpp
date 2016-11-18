@@ -69,7 +69,7 @@ int main(int argc, char** argv)
             const auto & ray = rays[ray_i];
             for (auto & segment : ray)
             {
-                const auto starting_micros = rf_image.micros_traveled(segment.distance_traveled * 10000.0f /*cm -> μm*/);
+                const auto starting_micros = rf_image.micros_traveled(segment.distance_traveled * 1000.0f /*mm -> μm*/);
                 const auto distance = scene.distance(segment.from, segment.to)*10.0f; // [mm]
                 const auto steps = distance / axial_resolution;
                 const auto delta_step = axial_resolution * segment.direction;

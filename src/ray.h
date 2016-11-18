@@ -47,7 +47,7 @@ bool should_travel(const ray & r);
 
 float max_ray_length(const ray & r);
 
-btVector3 snells_law(const btVector3 & ray_direction, const btVector3 & surface_normal, float refr_index_1, float refr_index_2);
+btVector3 snells_law(const btVector3 & ray_direction, const btVector3 & surface_normal, float incidence_angle, float refraction_angle, float refr_ratio);
 
 /**
  * Intensity of the reflected ray.
