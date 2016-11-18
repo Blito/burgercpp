@@ -1,7 +1,9 @@
 #ifndef RAY_H
 #define RAY_H
 
-#include "LinearMath/btVector3.h"
+#include <LinearMath/btVector3.h>
+
+#include <units/units.h>
 
 class material;
 
@@ -13,7 +15,7 @@ struct ray
     unsigned int depth;
     const material & media;
     float intensity, frequency;
-    unsigned int distance_traveled; // [mm]
+    units::length::millimeter_t distance_traveled; // [mm]
     unsigned short parent_collision; // position in collision vector
 
     static constexpr unsigned int max_depth = 5;
@@ -26,7 +28,7 @@ struct segment
     float reflected_intensity; // reflected back to the transducer, at the end of the segment
     float initial_intensity, attenuation;
 
-    unsigned int distance_traveled; // [mm]
+    units::length::millimeter_t distance_traveled;
     const material & media;
 };
 
@@ -41,7 +43,7 @@ struct hit_result { float reflected_intensity; ray reflection, refraction; };
 hit_result hit_boundary(const ray & r, const btVector3 &hit_point, const btVector3 & surface_normal, const material & media);
 
 // Advance through homogeneous media and decrease intensity accordingly
-void travel(ray & r, float mm);
+void travel(ray & r, units::length::millimeter_t mm);
 
 bool should_travel(const ray & r);
 

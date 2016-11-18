@@ -38,3 +38,6 @@ find_package(OpenCV REQUIRED)
 if (OpenCV_FOUND)
   target_link_libraries(burgercpp ${OpenCV_LIBS})
 endif()
+
+# Include other stuff, like Units
+include_directories("${CMAKE_SOURCE_DIR}/include")

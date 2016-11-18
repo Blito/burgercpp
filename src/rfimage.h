@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <array>
+#include <units/units.h>
 
 /**
  * Radio-frequency image.
@@ -23,9 +24,9 @@ public:
         std::cout << "rf_image: " << max_rows << ", " << columns << std::endl;
     }
 
-    void add_echo(const unsigned int column, const float echo_intensity, const float micros_from_source)
+    void add_echo(const unsigned int column, const float echo_intensity, const units::time::microsecond_t micros_from_source)
     {
-        const auto row = static_cast<unsigned int>(static_cast<float>(micros_from_source) / (static_cast<float>(axial_resolution) / static_cast<float>(speed_of_sound)));
+        const units::dimensionless::dimensionless_t row = micros_from_source / (axial_resolution_ / speed_of_sound_);
 
         if (row < max_rows)
         {
@@ -34,14 +35,14 @@ public:
     }
 
     // get the delta time that represents a pixel (row resolution in time)
-    constexpr float get_dt() const // [μs]
+    constexpr units::time::microsecond_t get_dt() const
     {
-        return static_cast<float>(axial_resolution)/static_cast<float>(speed_of_sound);
+        return axial_resolution / speed_of_sound_;
     }
 
-    constexpr float micros_traveled(unsigned int microm_from_source) const
+    constexpr units::time::microsecond_t micros_traveled(units::length::micrometer_t microm_from_source) const
     {
-        return static_cast<float>(microm_from_source)/static_cast<float>(speed_of_sound);
+        return microm_from_source / speed_of_sound_;
     }
 
     // Transforms the rf image by doing a fast approximation of the envelope function
@@ -107,9 +108,20 @@ public:
     }
 
 private:
-    static constexpr unsigned int max_rows = (max_travel_time * speed_of_sound) / axial_resolution;
+    // Create constexpr variables to use type operations later
+    static constexpr units::velocity::meters_per_second_t speed_of_sound_ = units::velocity::meters_per_second_t(speed_of_sound);
+    static constexpr units::length::micrometer_t axial_resolution_ = units::length::micrometer_t(axial_resolution);
+
+    static constexpr unsigned int max_rows = (speed_of_sound * max_travel_time) / axial_resolution;
 
     cv::Mat image;
 };
+
+// http://stackoverflow.com/a/22414046
+template <unsigned int columns, unsigned int max_travel_time, unsigned int axial_resolution, unsigned int speed_of_sound>
+constexpr units::velocity::meters_per_second_t rf_image<columns, max_travel_time, axial_resolution, speed_of_sound>::speed_of_sound_;
+
+template <unsigned int columns, unsigned int max_travel_time, unsigned int axial_resolution, unsigned int speed_of_sound>
+constexpr units::length::micrometer_t rf_image<columns, max_travel_time, axial_resolution, speed_of_sound>::axial_resolution_;
 
 #endif // RFIMAGE_H

@@ -42,10 +42,10 @@ ray_physics::hit_result ray_physics::hit_boundary(const ray & r, const btVector3
     return { back_to_transducer_intensity, reflection_ray, refraction_ray };
 }
 
-void ray_physics::travel(ray & r, float mm)
+void ray_physics::travel(ray & r, units::length::millimeter_t mm)
 {
-    r.distance_traveled += mm;
-    r.intensity = r.intensity * std::exp(-r.media.attenuation*(mm*0.01f)*r.frequency); // TODO: that 0.01 should be 0.1
+    r.distance_traveled = r.distance_traveled + mm;
+    r.intensity = r.intensity * std::exp(-r.media.attenuation*(mm.to<float>()*0.01f)*r.frequency); // TODO: that 0.01 should be 0.1
 }
 
 bool ray_physics::should_travel(const ray & r)

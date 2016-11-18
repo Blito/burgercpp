@@ -3,6 +3,8 @@
 #include "objloader.h"
 #include "ray.h"
 
+#include <units/units.h>
+
 #include <cmath>
 #include <iostream>
 #include <cassert>
@@ -108,7 +110,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                     materials[material_id::GEL],
                     initial_intensity,
                     frequency,
-                    0,                                                   // distance traveled
+                    units::length::millimeter_t(0),                                                   // distance traveled
                     0                                                    // previous ray
                 };
                 ray_stack.push_back(first_ray);
@@ -217,7 +219,7 @@ void scene::destroy_world()
     m_collisionConfiguration.reset();
 }
 
-float scene::distance_in_mm(const btVector3 & v1, const btVector3 & v2) const
+units::length::millimeter_t scene::distance_in_mm(const btVector3 & v1, const btVector3 & v2) const
 {
     using namespace std;
 
@@ -225,7 +227,7 @@ float scene::distance_in_mm(const btVector3 & v1, const btVector3 & v2) const
     auto y_dist = abs(v1.getY() - v2.getY()) * spacing[1];
     auto z_dist = abs(v1.getZ() - v2.getZ()) * spacing[2];
 
-    return sqrt(pow(x_dist,2) + pow(y_dist,2) + pow(z_dist,2)) * 10;
+    return units::length::millimeter_t(sqrt(pow(x_dist,2) + pow(y_dist,2) + pow(z_dist,2)) * 10);
 }
 
 btVector3 scene::enlarge(const btVector3 & versor, float mm) const
@@ -279,8 +281,9 @@ void scene::step(float delta_time)
     m_dynamicsWorld->stepSimulation(delta_time);
 }
 
-float scene::distance(const btVector3 & from, const btVector3 & to)
+// TODO: Is this equals to distance_in_mm?
+units::length::millimeter_t scene::distance(const btVector3 & from, const btVector3 & to) const
 {
     // TODO: Use scaling in this calculation
-    return static_cast<float>(from.distance(to));
+    return units::length::millimeter_t(from.distance(to)*10.0f);
 }

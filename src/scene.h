@@ -27,7 +27,7 @@ public:
 
     void step(float delta_time);
 
-    float distance(const btVector3 & from, const btVector3 & to);
+    units::length::millimeter_t distance(const btVector3 & from, const btVector3 & to) const;
 
 protected:
     struct organ_properties
@@ -65,7 +65,7 @@ protected:
     void create_empty_world();
     void destroy_world();
 
-    float distance_in_mm(const btVector3 & v1, const btVector3 & v2) const;
+    units::length::millimeter_t distance_in_mm(const btVector3 & v1, const btVector3 & v2) const;
     btVector3 enlarge(const btVector3 & versor, float mm) const;
 
     class btRigidBody * add_rigidbody_from_obj(const std::string & fileName, std::array<float, 3> deltas, float scaling);
