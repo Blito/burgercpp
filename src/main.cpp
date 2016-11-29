@@ -5,7 +5,9 @@
 
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <units/units.h>
+#include <nlohmann/json.hpp>
 
 using namespace units::literals;
 using namespace units::velocity;
@@ -53,62 +55,83 @@ namespace
 
 int main(int argc, char** argv)
 {
+    if (argc != 2)
+    {
+        std::cout << "Incorrect argument list." << std::endl;
+        return 0;
+    }
 
     static const volume_ texture_volume;
 
-    const psf_ psf(transducer_frequency, 0.1f, 0.3f, 0.4f);
+    const psf_ psf { transducer_frequency, 0.1f, 0.3f, 0.4f };
 
     rf_image_ rf_image;
 
-    scene scene;
-    scene.init();
-
-    scene.step(1000.0f);
-    while(true)
+    nlohmann::json json;
     {
-        rf_image.clear();
+        std::ifstream infile { argv[1] };
 
-        auto rays = scene.cast_rays<transducer_elements>();
+        json << infile;
+    }
 
-        for (unsigned int ray_i = 0; ray_i < rays.size(); ray_i++)
+    try
+    {
+        scene scene { json };
+        scene.init();
+
+        scene.step(1000.0f);
+        while(true)
         {
-            const auto & ray = rays[ray_i];
-            for (auto & segment : ray)
+            rf_image.clear();
+
+            auto rays = scene.cast_rays<transducer_elements>();
+
+            for (unsigned int ray_i = 0; ray_i < rays.size(); ray_i++)
             {
-                const auto starting_micros = rf_image.micros_traveled(segment.distance_traveled /*mm -> μm*/);
-                const auto distance = scene.distance(segment.from, segment.to); // [mm]
-                const auto steps = distance / axial_resolution;
-                const auto delta_step = axial_resolution.to<float>() * segment.direction;
-                const auto time_step = rf_image.micros_traveled(axial_resolution); // [μs]
-
-                auto point = segment.from;
-                auto time_elapsed = starting_micros;
-                auto intensity = segment.initial_intensity;
-
-                for (unsigned int step = 0; step < steps && time_elapsed < max_travel_time; step++)
+                const auto & ray = rays[ray_i];
+                for (auto & segment : ray)
                 {
-                    float echo = intensity * convolution(texture_volume, segment.media, psf, point.getX(), point.getY(), point.getZ());
+                    const auto starting_micros = rf_image.micros_traveled(segment.distance_traveled /*mm -> μm*/);
+                    const auto distance = scene.distance(segment.from, segment.to); // [mm]
+                    const auto steps = distance / axial_resolution;
+                    const auto delta_step = axial_resolution.to<float>() * segment.direction;
+                    const auto time_step = rf_image.micros_traveled(axial_resolution); // [μs]
 
-                    rf_image.add_echo(ray_i, echo, time_elapsed);
+                    auto point = segment.from;
+                    auto time_elapsed = starting_micros;
+                    auto intensity = segment.initial_intensity;
 
-                    // Step forward through the segment, decreasing intensity using Beer-Lambert's law
-                    point += delta_step;
-                    time_elapsed = time_elapsed + time_step;
+                    for (unsigned int step = 0; step < steps && time_elapsed < max_travel_time; step++)
+                    {
+                        float echo = intensity * convolution(texture_volume, segment.media, psf, point.getX(), point.getY(), point.getZ());
 
-                    constexpr auto k = 0.05f;
-                    intensity *= std::exp(-segment.attenuation * axial_resolution.to<float>()*0.1f * transducer_frequency * k);
+                        rf_image.add_echo(ray_i, echo, time_elapsed);
+
+                        // Step forward through the segment, decreasing intensity using Beer-Lambert's law
+                        point += delta_step;
+                        time_elapsed = time_elapsed + time_step;
+
+                        constexpr auto k = 0.05f;
+                        intensity *= std::exp(-segment.attenuation * axial_resolution.to<float>()*0.1f * transducer_frequency * k);
+                    }
+
+                    // Add reflection term, i.e. intensity directly reflected back to the transducer. See Burger13, Eq. 10.
+                    rf_image.add_echo(ray_i, segment.reflected_intensity, starting_micros + time_step * (steps-1));
+
                 }
-
-                // Add reflection term, i.e. intensity directly reflected back to the transducer. See Burger13, Eq. 10.
-                rf_image.add_echo(ray_i, segment.reflected_intensity, starting_micros + time_step * (steps-1));
 
             }
 
+            rf_image.envelope();
+
+            rf_image.show();
         }
-
-        rf_image.envelope();
-
-        rf_image.show();
+    }
+    catch (const std::exception & ex)
+    {
+        std::cout << "The program found an error and will terminate.\n"
+                  << "Reason:\n"
+                  << ex.what() << std::endl;
     }
 
 }

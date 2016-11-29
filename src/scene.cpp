@@ -8,11 +8,21 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#include <exception>
 
 template std::array<std::vector<ray_physics::segment>, 256> scene::cast_rays<256>();
 
-scene::scene()
+scene::scene(const nlohmann::json & config)
 {
+    try
+    {
+        parse_config(config);
+    }
+    catch (const std::exception & ex)
+    {
+        throw std::runtime_error{ "Error while loading scene: " + std::string{ex.what()} };
+    }
+
     create_empty_world();
 }
 
@@ -23,43 +33,14 @@ scene::~scene()
 
 void scene::init()
 {
-    struct mesh
-    {
-        std::string filename;
-        bool is_rigid;
-        std::array<float,3> deltas;
-        material_id material;
-    };
-
-//    std::array<mesh,11> meshes
-//    {{
-//        {"aorta.obj", true, {152.533512115f, 174.472991943f, 105.106495678f}, material_id::BLOOD},
-//        {"bones.obj", true, {188.265544891f, 202.440551758f, 105.599998474f}, material_id::BONE},
-//        {"liver.obj", true, {141.238292694f, 176.429901123f, 130.10585022f}, material_id::LIVER},
-//        {"cava.obj", true,  {206.332504272f, 192.29649353f, 104.897496045f}, material_id::BLOOD},
-//        {"right_kidney.obj", true, {118.23374939f, 218.907501221f, 53.6022927761f}, material_id::KIDNEY},
-//        {"left_kidney.obj", true,  {251.052993774f, 227.63949585f, 64.8468027115f}, material_id::KIDNEY},
-//        {"right_suprarrenal.obj", true, {152.25050354f, 213.971496582f, 115.338005066f}, material_id::SUPRARRENAL},
-//        {"left_suprarrenal.obj", true,  {217.128997803f, 209.525497437f, 102.477149963f}, material_id::SUPRARRENAL},
-//        {"gallbladder.obj", true, {128.70715332f, 146.592498779f, 112.361503601f}, material_id::GALLBLADDER},
-//        {"skin.obj", true,  {188.597551346f, 199.367202759f, 105.622316509f}, material_id::BONE},
-//        {"porta.obj", true, {182.364089966f, 177.214996338f, 93.0034988523f}, material_id::BLOOD}
-//    }};
-
-    std::array<mesh,2> meshes
-    {{
-        {"BOX.obj", true, {0,0,0}, material_id::LIVER},
-        {"SPHERE.obj", true, {0,0,0}, material_id::BONE}
-    }};
-
     for (const auto & mesh : meshes)
     {
         const auto full_path = working_dir + mesh.filename;
 
-        auto object = add_rigidbody_from_obj(full_path, mesh.deltas, 1.0f);
+        auto object = add_rigidbody_from_obj(full_path, mesh.deltas, scaling);
 
         // TODO: check the lifetime of this thing
-        auto properties = new organ_properties(mesh.material);
+        auto properties = new organ_properties(mesh.material_);
         object->setUserPointer(properties);
     }
 }
@@ -83,8 +64,6 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
     ///step the simulation
     if (m_dynamicsWorld)
     {
-        //btVector3 initial_pos(-14,1.2,-3);
-        btVector3 initial_pos(-10.5f,1.2,-3);
         const float ray_start_step { 0.02f };
 
         for (auto & segments_vector : segments)
@@ -104,10 +83,10 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
             {
                 ray first_ray
                 {
-                    initial_pos + btVector3(0,0,ray_start_step * ray_i), // from
-                    {1, 0, 0},                                           // initial direction
-                    0,                                                   // depth
-                    materials[material_id::GEL],
+                    transducer_pos + btVector3(0,0,ray_start_step * ray_i), // from
+                    transducer_dir,                                         // initial direction
+                    0,                                                      // depth
+                    materials.at("GEL"),
                     initial_intensity,
                     frequency,
                     units::length::millimeter_t(0),                                                   // distance traveled
@@ -135,7 +114,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                 if (closestResults.hasHit())
                 {
                     organ_properties * organ = static_cast<organ_properties*>(closestResults.m_collisionObject->getUserPointer());
-                    const auto & organ_material = organ ? materials[organ->mat_id] : ray_.media;
+                    const auto & organ_material = organ ? organ->mat : ray_.media;
 
 
                     // Substract ray intensity according to distance traveled
@@ -185,6 +164,63 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
     frame_start = clock();
 
     return segments;
+}
+
+void scene::parse_config(const nlohmann::json & config)
+{
+    working_dir = config.find("working directory") != config.end() ? config.at("working directory") : "";
+
+    const auto & t_pos = config.at("transducer position");
+    transducer_pos = {t_pos[0], t_pos[1], t_pos[2]};
+
+    const auto & t_dir = config.at("transducer direction");
+    transducer_dir = {t_dir[0], t_dir[1], t_dir[2]};
+
+    const auto & orig = config.at("origin");
+    origin = {orig[0], orig[1], orig[2]};
+
+    const auto & spac = config.at("spacing");
+    spacing = {spac[0], spac[1], spac[2]};
+
+    scaling = config.at("scaling");
+
+    const auto & mats = config.at("materials");
+    if (mats.is_array())
+    {
+        for (const auto & mat : mats)
+        {
+            materials[mat.at("name")] =
+                {
+                    mat.at("impedance"),
+                    mat.at("attenuation"),
+                    mat.at("mu0"),
+                    mat.at("mu1"),
+                    mat.at("sigma")
+                };
+        }
+    }
+    else
+    {
+        throw std::runtime_error("materials must be an array");
+    }
+
+    const auto & meshes_ = config.at("meshes");
+    if (meshes_.is_array())
+    {
+        for (const auto & mesh_ : meshes_)
+        {
+            const auto & deltas { mesh_.at("deltas") };
+            meshes.emplace_back(mesh{
+                        mesh_.at("file"),
+                        mesh_.at("rigid"),
+                        {deltas[0], deltas[1], deltas[2]},
+                        materials.at(mesh_.at("material"))});
+        }
+    }
+    else
+    {
+        throw std::runtime_error("meshes must be an array");
+    }
 }
 
 void scene::create_empty_world()
@@ -261,12 +297,11 @@ btRigidBody * scene::add_rigidbody_from_obj(const std::string & fileName, std::a
     startTransform.setIdentity();
 
     //std::array<float, 3> origin { -18, -22, -5 }; // origin for organs scene
-    std::array<float, 3> origin { 0, 0, 0 };
     float pos[4] = {deltas[0]*_scaling[0]*_scaling[0],deltas[1]*_scaling[1]*_scaling[1],deltas[2]*_scaling[2]*_scaling[2],0};
     btVector3 position(pos[0] + origin[0], pos[1] + origin[1], pos[2] + origin[2]);
     startTransform.setOrigin(position);
 
-    btScalar	mass(0.f);
+    btScalar mass(0.f);
     btVector3 localInertia(0, 0, 0);
     auto myMotionState = new btDefaultMotionState(startTransform);
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);

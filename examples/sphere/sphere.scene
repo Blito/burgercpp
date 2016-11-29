@@ -1,0 +1,112 @@
+{
+  "working directory": "examples/sphere/",
+  "transducer position": [-10.5, 1.2, -3.0],
+  "transducer direction": [1.0, 0.0, 0.0],
+  "materials": [
+    {
+      "name": "GEL",
+      "impedance": 1.99,
+      "attenuation": 1e-8,
+      "mu0": 0.0,
+      "mu1": 0.0,
+      "sigma": 0.0
+    },
+    {
+      "name": "AIR",
+      "impedance": 0.0004,
+      "attenuation": 1.64,
+      "mu0": 0.78,
+      "mu1": 0.56,
+      "sigma": 0.1
+    },
+    {
+      "name": "FAT",
+      "impedance": 1.38,
+      "attenuation": 0.63,
+      "mu0": 0.5,
+      "mu1": 0.5,
+      "sigma": 0.0
+    },
+    {
+      "name": "LIVER",
+      "impedance": 1.65,
+      "attenuation": 0.7,
+      "mu0": 0.19,
+      "mu1": 1.0,
+      "sigma": 0.24
+    },
+    {
+      "name": "BONE",
+      "impedance": 7.8,
+      "attenuation": 5.0,
+      "mu0": 0.78,
+      "mu1": 0.56,
+      "sigma": 0.1
+    },
+    {
+      "name": "BLOOD",
+      "impedance": 1.61,
+      "attenuation": 0.18,
+      "mu0": 0.001,
+      "mu1": 0.0,
+      "sigma": 0.01
+    },
+    {
+      "name": "VESSEL",
+      "impedance": 1.99,
+      "attenuation": 1.09,
+      "mu0": 0.2,
+      "mu1": 0.1,
+      "sigma": 0.2
+    },
+    {
+      "name": "KIDNEY",
+      "impedance": 1.62,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3
+    },
+    {
+      "name": "SUPRARRENAL",
+      "impedance": 1.62,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3
+    },
+    {
+      "name": "GALLBLADDER",
+      "impedance": 1.62,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3
+    },
+    {
+      "name": "SKIN",
+      "impedance": 1.99,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3
+    }
+  ],
+  "meshes": [
+    {
+      "file": "BOX.obj",
+      "rigid": true,
+      "deltas": [0.0,0.0,0.0],
+      "material": "LIVER"
+    },
+    {
+      "file": "SPHERE.obj",
+      "rigid": true,
+      "deltas": [0.0,0.0,0.0],
+      "material": "BONE"
+    }
+  ],
+  "origin": [0.0, 0.0, 0.0],
+  "spacing": [1.0,1.0,1.0],
+  "scaling": 1.0
+}

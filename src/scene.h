@@ -12,10 +12,12 @@
 #include <array>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 class scene
 {
 public:
-    scene();
+    explicit scene(const nlohmann::json & config);
     ~scene();
 
     void init();
@@ -32,35 +34,35 @@ public:
 protected:
     struct organ_properties
     {
-        organ_properties(material_id mat_id)
-            : mat_id(mat_id)
+        organ_properties(const material & mat)
+            : mat(mat)
         {}
 
-        material_id mat_id;
+        const material & mat;
     };
 
-    const std::string working_dir { "data/ultrasound/test/" };
+    std::string working_dir;
 
-    std::unordered_map<material_id, material, EnumClassHash> materials
+    std::unordered_map<std::string, material> materials;
+
+    struct mesh
     {
-        { material_id::GEL, {1.99f, 1e-8, 0.0f, 0.0f, 0.0f} },
-        { material_id::AIR, {0.0004f, 1.64f, 0.78f, 0.56f, 0.1f} },
-        { material_id::FAT, {1.38f, 0.63f, 0.5f, 0.5f, 0.0f} },
-        { material_id::BONE, {7.8f, 5.0f, 0.78f, 0.56f, 0.1f} },
-        { material_id::BLOOD, {1.61f, 0.18f, 0.001f, 0.0f, 0.01f} },
-        { material_id::VESSEL, {1.99f, 1.09f, 0.2f, 0.1f, 0.2f} },
-        { material_id::LIVER, {1.65f, 0.7f, 0.19f, 1.0f, 0.24f} },
-        { material_id::KIDNEY, {1.62f, 1.0f, 0.4f, 0.6f, 0.3f} },
-        { material_id::SUPRARRENAL, {1.62f, 1.0f, 0.4f, 0.6f, 0.3f} }, // todo
-        { material_id::GALLBLADDER, {1.62f, 1.0f, 0.4f, 0.6f, 0.3f} }, // todo
-        { material_id::SKIN, {1.99f, 0.6f, 0.5f, 0.2f, 0.5f} },
+        std::string filename;
+        bool is_rigid;
+        std::array<float,3> deltas;
+        const material & material_;
     };
+    std::vector<mesh> meshes;
 
     const float frequency { 5.0f };
     const float intensity_epsilon { 1e-8 };
     const float initial_intensity { 1.0f };
 
-    const std::array<float,3> spacing {{ 1.0f, 1.0f, 1.0f }};
+    std::array<float,3> spacing;
+    std::array<float,3> origin;
+    float scaling;
+
+    void parse_config(const nlohmann::json & config);
 
     void create_empty_world();
     void destroy_world();

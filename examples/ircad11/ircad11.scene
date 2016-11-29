@@ -1,0 +1,167 @@
+
+{
+  "working directory": "examples/ircad11/",
+  "transducer position": [-14.5, 1.2, -3.0],
+  "transducer direction": [1.0, 0.0, 0.0],
+  "materials": [
+    {
+      "name": "GEL",
+      "impedance": 1.99,
+      "attenuation": 1e-8,
+      "mu0": 0.0,
+      "mu1": 0.0,
+      "sigma": 0.0
+    },
+    {
+      "name": "AIR",
+      "impedance": 0.0004,
+      "attenuation": 1.64,
+      "mu0": 0.78,
+      "mu1": 0.56,
+      "sigma": 0.1
+    },
+    {
+      "name": "FAT",
+      "impedance": 1.38,
+      "attenuation": 0.63,
+      "mu0": 0.5,
+      "mu1": 0.5,
+      "sigma": 0.0
+    },
+    {
+      "name": "LIVER",
+      "impedance": 1.65,
+      "attenuation": 0.7,
+      "mu0": 0.19,
+      "mu1": 1.0,
+      "sigma": 0.24
+    },
+    {
+      "name": "BONE",
+      "impedance": 7.8,
+      "attenuation": 5.0,
+      "mu0": 0.78,
+      "mu1": 0.56,
+      "sigma": 0.1
+    },
+    {
+      "name": "BLOOD",
+      "impedance": 1.61,
+      "attenuation": 0.18,
+      "mu0": 0.001,
+      "mu1": 0.0,
+      "sigma": 0.01
+    },
+    {
+      "name": "VESSEL",
+      "impedance": 1.99,
+      "attenuation": 1.09,
+      "mu0": 0.2,
+      "mu1": 0.1,
+      "sigma": 0.2
+    },
+    {
+      "name": "KIDNEY",
+      "impedance": 1.62,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3
+    },
+    {
+      "name": "SUPRARRENAL",
+      "impedance": 1.62,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3
+    },
+    {
+      "name": "GALLBLADDER",
+      "impedance": 1.62,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3
+    },
+    {
+      "name": "SKIN",
+      "impedance": 1.99,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3
+    }
+  ],
+  "meshes": [
+    {
+      "file": "aorta.obj",
+      "rigid": true,
+      "deltas": [152.533512115, 174.472991943, 105.106495678],
+      "material": "BLOOD"
+    },
+    {
+      "file": "bones.obj",
+      "rigid": true,
+      "deltas": [188.265544891, 202.440551758, 105.599998474],
+      "material": "BONE"
+    },
+    {
+      "file": "liver.obj",
+      "rigid": true,
+      "deltas": [141.238292694, 176.429901123, 130.10585022],
+      "material": "LIVER"
+    },
+    {
+      "file": "cava.obj",
+      "rigid": true,
+      "deltas": [206.332504272, 192.29649353, 104.897496045],
+      "material": "BLOOD"
+    },
+    {
+      "file": "right_kidney.obj",
+      "rigid": true,
+      "deltas": [118.23374939, 218.907501221, 53.6022927761],
+      "material": "KIDNEY"
+    },
+    {
+      "file": "left_kidney.obj",
+      "rigid": true,
+      "deltas": [251.052993774, 227.63949585, 64.8468027115],
+      "material": "KIDNEY"
+    },
+    {
+      "file": "right_suprarrenal.obj",
+      "rigid": true,
+      "deltas": [152.25050354, 213.971496582, 115.338005066],
+      "material": "SUPRARRENAL"
+    },
+    {
+      "file": "left_suprarrenal.obj",
+      "rigid": true,
+      "deltas": [217.128997803, 209.525497437, 102.477149963],
+      "material": "SUPRARRENAL"
+    },
+    {
+      "file": "gallbladder.obj",
+      "rigid": true,
+      "deltas": [128.70715332, 146.592498779, 112.361503601],
+      "material": "GALLBLADDER"
+    },
+    {
+      "file": "skin.obj",
+      "rigid": true,
+      "deltas": [188.597551346, 199.367202759, 105.622316509],
+      "material": "BONE"
+    },
+    {
+      "file": "porta.obj",
+      "rigid": true,
+      "deltas": [182.364089966, 177.214996338, 93.0034988523],
+      "material": "BLOOD"
+    }
+  ],
+  "origin": [-18.0, -22.0, -5.0],
+  "spacing": [1.0,1.0,1.0],
+  "scaling": 0.1
+}
