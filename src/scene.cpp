@@ -33,15 +33,13 @@ scene::~scene()
 
 void scene::init()
 {
-    for (const auto & mesh : meshes)
+    for (auto & mesh : meshes)
     {
         const auto full_path = working_dir + mesh.filename;
 
         auto object = add_rigidbody_from_obj(full_path, mesh.deltas, scaling);
 
-        // TODO: check the lifetime of this thing
-        auto properties = new organ_properties(mesh.material_);
-        object->setUserPointer(properties);
+        object->setUserPointer(&mesh);
     }
 }
 
@@ -99,7 +97,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
             {
                 // Pop a ray from the stack and check if it collides
 
-                auto ray_ = ray_stack.at(ray_stack.size()-1);
+                auto & ray_ = ray_stack.at(ray_stack.size()-1);
 
                 float r_length = ray_physics::max_ray_length(ray_);
                 auto to = ray_.from + enlarge(ray_.direction, r_length);
@@ -113,10 +111,6 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
 
                 if (closestResults.hasHit())
                 {
-                    organ_properties * organ = static_cast<organ_properties*>(closestResults.m_collisionObject->getUserPointer());
-                    const auto & organ_material = organ ? organ->mat : ray_.media;
-
-
                     // Substract ray intensity according to distance traveled
                     auto distance_before_hit = ray_.distance_traveled;
                     ray_physics::travel(ray_, distance_in_mm(ray_.from, closestResults.m_hitPointWorld));
@@ -126,7 +120,10 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                     {
                         // Calculate refraction and reflection directions and intensities
 
-                        auto result = ray_physics::hit_boundary(ray_, closestResults.m_hitPointWorld, closestResults.m_hitNormalWorld, organ_material);
+                        const auto organ = static_cast<mesh*>(closestResults.m_collisionObject->getUserPointer());
+                        assert(organ);
+
+                        auto result = ray_physics::hit_boundary(ray_, closestResults.m_hitPointWorld, closestResults.m_hitNormalWorld, *organ);
 
                         // Register collision creating a segment from the beggining of the ray to the collision point
                         segments_vector.emplace_back(segment{ray_.from, closestResults.m_hitPointWorld, ray_.direction, result.reflected_intensity, ray_.intensity, ray_.media.attenuation, distance_before_hit, ray_.media});
@@ -148,7 +145,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                 else
                 {
                     // Ray did not reach another media, add a data point at its end.
-                    //segments_vector.emplace_back(segment{ray_.from, to, ray_.direction, 0.0f, ray_.intensity, ray_.media.attenuation, ray_.distance_traveled + r_length, ray_.media);
+                    segments_vector.emplace_back(segment{ray_.from, to, ray_.direction, 0.0f, ray_.intensity, ray_.media.attenuation, ray_.distance_traveled + units::length::millimeter_t{r_length}, ray_.media});
                 }
             }
         }
@@ -168,12 +165,12 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
 
 void scene::parse_config(const nlohmann::json & config)
 {
-    working_dir = config.find("working directory") != config.end() ? config.at("working directory") : "";
+    working_dir = config.find("workingDirectory") != config.end() ? config.at("workingDirectory") : "";
 
-    const auto & t_pos = config.at("transducer position");
+    const auto & t_pos = config.at("transducerPosition");
     transducer_pos = {t_pos[0], t_pos[1], t_pos[2]};
 
-    const auto & t_dir = config.at("transducer direction");
+    const auto & t_dir = config.at("transducerDirection");
     transducer_dir = {t_dir[0], t_dir[1], t_dir[2]};
 
     const auto & orig = config.at("origin");
@@ -214,7 +211,9 @@ void scene::parse_config(const nlohmann::json & config)
                         mesh_.at("file"),
                         mesh_.at("rigid"),
                         {deltas[0], deltas[1], deltas[2]},
-                        materials.at(mesh_.at("material"))});
+                        mesh_.at("outsideNormals"),
+                        materials.at(mesh_.at("material")),
+                        materials.at(mesh_.at("outsideMaterial"))});
         }
     }
     else

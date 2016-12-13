@@ -2,20 +2,32 @@
 
 #include <cmath>
 
-#include "material.h"
+#include "mesh.h"
 
 using namespace ray_physics;
 
-ray_physics::hit_result ray_physics::hit_boundary(const ray & r, const btVector3 & hit_point, const btVector3 & surface_normal, const material & media)
+ray_physics::hit_result ray_physics::hit_boundary(const ray & r, const btVector3 & hit_point, const btVector3 & surface_normal, const mesh & collided_mesh)
 {
-    const float refr_ratio = r.media.impedance / media.impedance;
-
     btScalar incidence_angle = r.direction.dot(-surface_normal); // cos theta_1
+
+    const auto & material_after_collision = [&incidence_angle, &collided_mesh]() -> const material &
+    {
+        if (collided_mesh.outside_normals)
+        {
+            return incidence_angle < 0 ? collided_mesh.material_outside : collided_mesh.material_inside;
+        }
+        else
+        {
+            return incidence_angle > 0 ? collided_mesh.material_outside : collided_mesh.material_inside;
+        }
+    }();
+
     if (incidence_angle < 0)
     {
         incidence_angle = r.direction.dot(surface_normal);
     }
 
+    const float refr_ratio = r.media.impedance / material_after_collision.impedance;
     float refraction_angle = 1 - refr_ratio*refr_ratio * (1 - incidence_angle*incidence_angle);
     const bool total_internal_reflection = refraction_angle < 0;
 
@@ -28,14 +40,14 @@ ray_physics::hit_result ray_physics::hit_boundary(const ray & r, const btVector3
                                     r.intensity :
                                     reflection_intensity(r.intensity,
                                         r.media.impedance, incidence_angle,
-                                        media.impedance, refraction_angle);
+                                        material_after_collision.impedance, refraction_angle);
     const auto intensity_refr = r.intensity - intensity_refl;
 
     // Eq. 10 in Burger13
-    const float back_to_transducer_intensity = reflected_intensity(r.intensity, incidence_angle, r.media, media);
+    const float back_to_transducer_intensity = reflected_intensity(r.intensity, incidence_angle, r.media, material_after_collision);
 
     // Add two more rays to the stack
-    ray refraction_ray { hit_point, refraction_direction, r.depth+1, media, intensity_refr > ray::intensity_epsilon ? intensity_refr : 0.0f, r.frequency, r.distance_traveled, 0 };
+    ray refraction_ray { hit_point, refraction_direction, r.depth+1, material_after_collision, intensity_refr > ray::intensity_epsilon ? intensity_refr : 0.0f, r.frequency, r.distance_traveled, 0 };
 
     ray reflection_ray { hit_point, reflection_direction, r.depth+1, r.media, intensity_refl > ray::intensity_epsilon ? intensity_refl : 0.0f, r.frequency, r.distance_traveled, 0 };
 

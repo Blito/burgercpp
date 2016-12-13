@@ -1,8 +1,8 @@
 
 {
-  "working directory": "examples/ircad11/",
-  "transducer position": [-14.5, 1.2, -3.0],
-  "transducer direction": [1.0, 0.0, 0.0],
+  "workingDirectory": "examples/ircad11/",
+  "transducerPosition": [-14.5, 1.2, -3.0],
+  "transducerDirection": [1.0, 0.0, 0.0],
   "materials": [
     {
       "name": "GEL",
@@ -98,67 +98,89 @@
       "file": "aorta.obj",
       "rigid": true,
       "deltas": [152.533512115, 174.472991943, 105.106495678],
-      "material": "BLOOD"
+      "material": "BLOOD",
+      "outsideMaterial": "FAT",
+      "outsideNormals": true
     },
     {
       "file": "bones.obj",
       "rigid": true,
       "deltas": [188.265544891, 202.440551758, 105.599998474],
-      "material": "BONE"
+      "material": "BONE",
+      "outsideMaterial": "FAT",
+      "outsideNormals": true
     },
     {
       "file": "liver.obj",
       "rigid": true,
       "deltas": [141.238292694, 176.429901123, 130.10585022],
-      "material": "LIVER"
+      "material": "LIVER",
+      "outsideMaterial": "FAT",
+      "outsideNormals": true
     },
     {
       "file": "cava.obj",
       "rigid": true,
       "deltas": [206.332504272, 192.29649353, 104.897496045],
-      "material": "BLOOD"
+      "material": "BLOOD",
+      "outsideMaterial": "FAT",
+      "outsideNormals": true
     },
     {
       "file": "right_kidney.obj",
       "rigid": true,
       "deltas": [118.23374939, 218.907501221, 53.6022927761],
-      "material": "KIDNEY"
+      "material": "KIDNEY",
+      "outsideMaterial": "FAT",
+      "outsideNormals": true
     },
     {
       "file": "left_kidney.obj",
       "rigid": true,
       "deltas": [251.052993774, 227.63949585, 64.8468027115],
-      "material": "KIDNEY"
+      "material": "KIDNEY",
+      "outsideMaterial": "FAT",
+      "outsideNormals": true
     },
     {
       "file": "right_suprarrenal.obj",
       "rigid": true,
       "deltas": [152.25050354, 213.971496582, 115.338005066],
-      "material": "SUPRARRENAL"
+      "material": "SUPRARRENAL",
+      "outsideMaterial": "FAT",
+      "outsideNormals": true
     },
     {
       "file": "left_suprarrenal.obj",
       "rigid": true,
       "deltas": [217.128997803, 209.525497437, 102.477149963],
-      "material": "SUPRARRENAL"
+      "material": "SUPRARRENAL",
+      "outsideMaterial": "FAT",
+      "outsideNormals": true
     },
     {
       "file": "gallbladder.obj",
       "rigid": true,
       "deltas": [128.70715332, 146.592498779, 112.361503601],
-      "material": "GALLBLADDER"
+      "material": "GALLBLADDER",
+      "outsideMaterial": "FAT",
+      "outsideNormals": true
     },
     {
       "file": "skin.obj",
       "rigid": true,
       "deltas": [188.597551346, 199.367202759, 105.622316509],
-      "material": "BONE"
+      "material": "SKIN",
+      "outsideMaterial": "GEL",
+      "outsideNormals": true
     },
     {
       "file": "porta.obj",
       "rigid": true,
       "deltas": [182.364089966, 177.214996338, 93.0034988523],
-      "material": "BLOOD"
+      "material": "BLOOD",
+      "outsideMaterial": "FAT",
+      "outsideNormals": true
     }
   ],
   "origin": [-18.0, -22.0, -5.0],

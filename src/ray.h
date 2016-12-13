@@ -6,19 +6,20 @@
 #include <units/units.h>
 
 class material;
+class mesh;
 
 namespace ray_physics {
 
 struct ray
 {
     btVector3 from, direction;
-    unsigned int depth;
+    size_t depth;
     const material & media;
     float intensity, frequency;
     units::length::millimeter_t distance_traveled; // [mm]
     unsigned short parent_collision; // position in collision vector
 
-    static constexpr unsigned int max_depth = 5;
+    static constexpr size_t max_depth = 5;
     static constexpr float intensity_epsilon = 1e-8;
 };
 
@@ -40,7 +41,7 @@ struct collision
 
 struct hit_result { float reflected_intensity; ray reflection, refraction; };
 
-hit_result hit_boundary(const ray & r, const btVector3 &hit_point, const btVector3 & surface_normal, const material & media);
+hit_result hit_boundary(const ray & r, const btVector3 &hit_point, const btVector3 & surface_normal, const mesh & collided_mesh);
 
 // Advance through homogeneous media and decrease intensity accordingly
 void travel(ray & r, units::length::millimeter_t mm);

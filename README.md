@@ -9,9 +9,11 @@ Implementation of [Real-Time GPU-Based Ultrasound Simulation Using Deformable Me
 ## Example scene
 
 ![Sphere scene 3D](http://i.imgur.com/b8Acetb.png)
-Test
+Test scene using a sphere of bone tissue inside a cube of liver tissue.
 
 ![Sphere scene](http://i.imgur.com/OhOPUp3.png)
+
+---
 
 ## Prerequisites
 - C++14 compiler (tested using MinGW-w64)
@@ -21,6 +23,6 @@ Test
     burgercpp examples/sphere/sphere.scene
 
 ## Third Party Libraries
-- [Bulletphysics](https://github.com/bulletphysics/bullet3)
-- [nholthaus/units](https://github.com/nholthaus/units)
-- [nlohmann/json](https://github.com/nlohmann/json)
+- [Bulletphysics](https://github.com/bulletphysics/bullet3) (not included)
+- [nholthaus/units](https://github.com/nholthaus/units) (header-only, included)
+- [nlohmann/json](https://github.com/nlohmann/json) (header-only, included)

@@ -8,9 +8,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -std=c++14")
 # Sources
 set (burgercpp_SRC
         "src/main.cpp"
+        "src/mesh.h"
         "src/scene.cpp"
         "src/objloader.h"
-        "src/material.h"
         "src/ray.cpp"
         "src/rfimage.h"
         "src/psf.h"

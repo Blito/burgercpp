@@ -3,8 +3,8 @@
 
 #include "btBulletDynamicsCommon.h"
 
-#include "material.h"
 #include "ray.h"
+#include "mesh.h"
 
 #include <ctime>
 #include <memory>
@@ -32,26 +32,10 @@ public:
     units::length::millimeter_t distance(const btVector3 & from, const btVector3 & to) const;
 
 protected:
-    struct organ_properties
-    {
-        organ_properties(const material & mat)
-            : mat(mat)
-        {}
-
-        const material & mat;
-    };
-
     std::string working_dir;
 
     std::unordered_map<std::string, material> materials;
 
-    struct mesh
-    {
-        std::string filename;
-        bool is_rigid;
-        std::array<float,3> deltas;
-        const material & material_;
-    };
     std::vector<mesh> meshes;
 
     const float frequency { 5.0f };

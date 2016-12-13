@@ -1,7 +1,7 @@
 {
-  "working directory": "examples/sphere/",
-  "transducer position": [-10.5, 1.2, -3.0],
-  "transducer direction": [1.0, 0.0, 0.0],
+  "workingDirectory": "examples/sphere/",
+  "transducerPosition": [-10.5, 1.2, -3.0],
+  "transducerDirection": [1.0, 0.0, 0.0],
   "materials": [
     {
       "name": "GEL",
@@ -97,13 +97,17 @@
       "file": "BOX.obj",
       "rigid": true,
       "deltas": [0.0,0.0,0.0],
-      "material": "LIVER"
+      "material": "LIVER",
+      "outsideMaterial": "GEL",
+      "outsideNormals": true
     },
     {
       "file": "SPHERE.obj",
       "rigid": true,
       "deltas": [0.0,0.0,0.0],
-      "material": "BONE"
+      "material": "BONE",
+      "outsideMaterial": "LIVER",
+      "outsideNormals": true
     }
   ],
   "origin": [0.0, 0.0, 0.0],

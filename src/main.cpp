@@ -17,7 +17,7 @@ using namespace units::time;
 constexpr meters_per_second_t speed_of_sound = 1500_m / 1_s; // [μm/μs], [m/s]
 constexpr float transducer_frequency = 4.5f; // [Mhz]
 constexpr millimeter_t axial_resolution = millimeter_t(1.45f / transducer_frequency); // [mm], the division can be deduced from Burger13
-constexpr unsigned int transducer_elements = 256;
+constexpr size_t transducer_elements = 256;
 constexpr centimeter_t ultrasound_depth = 15_cm; // [15cm -> μm]
 constexpr microsecond_t max_travel_time = microsecond_t(ultrasound_depth / speed_of_sound); // [μs]
 
