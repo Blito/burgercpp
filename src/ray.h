@@ -15,6 +15,7 @@ struct ray
     btVector3 from, direction;
     size_t depth;
     const material & media;
+    const material * media_outside = nullptr; // keep track of media outside of vascularities, so we can switch back to it when the ray gets out of them
     float intensity, frequency;
     units::length::millimeter_t distance_traveled; // [mm]
     unsigned short parent_collision; // position in collision vector

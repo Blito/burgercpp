@@ -12,7 +12,7 @@ struct material
 struct mesh
 {
     const std::string filename;
-    const bool is_rigid;
+    const bool is_rigid, is_vascular;
     const std::array<float,3> deltas;
     const bool outside_normals;
     const material & material_inside;

@@ -85,6 +85,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                     transducer_dir,                                         // initial direction
                     0,                                                      // depth
                     materials.at("GEL"),
+                    nullptr,
                     initial_intensity,
                     frequency,
                     units::length::millimeter_t(0),                                                   // distance traveled
@@ -102,7 +103,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                 float r_length = ray_physics::max_ray_length(ray_);
                 auto to = ray_.from + enlarge(ray_.direction, r_length);
 
-                btCollisionWorld::ClosestRayResultCallback closestResults(ray_.from,to);
+                btCollisionWorld::ClosestRayResultCallback closestResults(ray_.from + 0.1f * ray_.direction,to);
 
                 m_dynamicsWorld->rayTest(ray_.from + 0.1f * ray_.direction,to,closestResults);
                 tests++;
@@ -210,6 +211,7 @@ void scene::parse_config(const nlohmann::json & config)
             meshes.emplace_back(mesh{
                         mesh_.at("file"),
                         mesh_.at("rigid"),
+                        mesh_.at("vascular"),
                         {deltas[0], deltas[1], deltas[2]},
                         mesh_.at("outsideNormals"),
                         materials.at(mesh_.at("material")),

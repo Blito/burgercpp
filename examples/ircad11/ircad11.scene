@@ -97,6 +97,7 @@
     {
       "file": "aorta.obj",
       "rigid": true,
+      "vascular": true,
       "deltas": [152.533512115, 174.472991943, 105.106495678],
       "material": "BLOOD",
       "outsideMaterial": "FAT",
@@ -105,6 +106,7 @@
     {
       "file": "bones.obj",
       "rigid": true,
+      "vascular": false,
       "deltas": [188.265544891, 202.440551758, 105.599998474],
       "material": "BONE",
       "outsideMaterial": "FAT",
@@ -113,6 +115,7 @@
     {
       "file": "liver.obj",
       "rigid": true,
+      "vascular": false,
       "deltas": [141.238292694, 176.429901123, 130.10585022],
       "material": "LIVER",
       "outsideMaterial": "FAT",
@@ -121,6 +124,7 @@
     {
       "file": "cava.obj",
       "rigid": true,
+      "vascular": true,
       "deltas": [206.332504272, 192.29649353, 104.897496045],
       "material": "BLOOD",
       "outsideMaterial": "FAT",
@@ -129,22 +133,25 @@
     {
       "file": "right_kidney.obj",
       "rigid": true,
+      "vascular": false,
       "deltas": [118.23374939, 218.907501221, 53.6022927761],
       "material": "KIDNEY",
-      "outsideMaterial": "FAT",
+      "outsideMaterial": "SKIN",
       "outsideNormals": true
     },
     {
       "file": "left_kidney.obj",
       "rigid": true,
+      "vascular": false,
       "deltas": [251.052993774, 227.63949585, 64.8468027115],
       "material": "KIDNEY",
-      "outsideMaterial": "FAT",
+      "outsideMaterial": "SKIN",
       "outsideNormals": true
     },
     {
       "file": "right_suprarrenal.obj",
       "rigid": true,
+      "vascular": false,
       "deltas": [152.25050354, 213.971496582, 115.338005066],
       "material": "SUPRARRENAL",
       "outsideMaterial": "FAT",
@@ -153,6 +160,7 @@
     {
       "file": "left_suprarrenal.obj",
       "rigid": true,
+      "vascular": false,
       "deltas": [217.128997803, 209.525497437, 102.477149963],
       "material": "SUPRARRENAL",
       "outsideMaterial": "FAT",
@@ -161,6 +169,7 @@
     {
       "file": "gallbladder.obj",
       "rigid": true,
+      "vascular": false,
       "deltas": [128.70715332, 146.592498779, 112.361503601],
       "material": "GALLBLADDER",
       "outsideMaterial": "FAT",
@@ -169,6 +178,7 @@
     {
       "file": "skin.obj",
       "rigid": true,
+      "vascular": false,
       "deltas": [188.597551346, 199.367202759, 105.622316509],
       "material": "SKIN",
       "outsideMaterial": "GEL",
@@ -177,6 +187,7 @@
     {
       "file": "porta.obj",
       "rigid": true,
+      "vascular": true,
       "deltas": [182.364089966, 177.214996338, 93.0034988523],
       "material": "BLOOD",
       "outsideMaterial": "FAT",

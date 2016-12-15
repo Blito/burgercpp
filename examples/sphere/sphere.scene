@@ -96,6 +96,7 @@
     {
       "file": "BOX.obj",
       "rigid": true,
+      "vascular": false,
       "deltas": [0.0,0.0,0.0],
       "material": "LIVER",
       "outsideMaterial": "GEL",
@@ -104,6 +105,7 @@
     {
       "file": "SPHERE.obj",
       "rigid": true,
+      "vascular": false,
       "deltas": [0.0,0.0,0.0],
       "material": "BONE",
       "outsideMaterial": "LIVER",
