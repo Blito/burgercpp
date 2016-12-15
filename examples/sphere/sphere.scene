@@ -9,7 +9,8 @@
       "attenuation": 1e-8,
       "mu0": 0.0,
       "mu1": 0.0,
-      "sigma": 0.0
+      "sigma": 0.0,
+      "specularity": 1.0
     },
     {
       "name": "AIR",
@@ -17,7 +18,8 @@
       "attenuation": 1.64,
       "mu0": 0.78,
       "mu1": 0.56,
-      "sigma": 0.1
+      "sigma": 0.1,
+      "specularity": 1.0
     },
     {
       "name": "FAT",
@@ -25,7 +27,8 @@
       "attenuation": 0.63,
       "mu0": 0.5,
       "mu1": 0.5,
-      "sigma": 0.0
+      "sigma": 0.0,
+      "specularity": 1.0
     },
     {
       "name": "LIVER",
@@ -33,7 +36,8 @@
       "attenuation": 0.7,
       "mu0": 0.19,
       "mu1": 1.0,
-      "sigma": 0.24
+      "sigma": 0.24,
+      "specularity": 1.0
     },
     {
       "name": "BONE",
@@ -41,7 +45,8 @@
       "attenuation": 5.0,
       "mu0": 0.78,
       "mu1": 0.56,
-      "sigma": 0.1
+      "sigma": 0.1,
+      "specularity": 1.0
     },
     {
       "name": "BLOOD",
@@ -49,7 +54,8 @@
       "attenuation": 0.18,
       "mu0": 0.001,
       "mu1": 0.0,
-      "sigma": 0.01
+      "sigma": 0.01,
+      "specularity": 1.0
     },
     {
       "name": "VESSEL",
@@ -57,7 +63,8 @@
       "attenuation": 1.09,
       "mu0": 0.2,
       "mu1": 0.1,
-      "sigma": 0.2
+      "sigma": 0.2,
+      "specularity": 1.0
     },
     {
       "name": "KIDNEY",
@@ -65,7 +72,8 @@
       "attenuation": 1.0,
       "mu0": 0.4,
       "mu1": 0.6,
-      "sigma": 0.3
+      "sigma": 0.3,
+      "specularity": 1.0
     },
     {
       "name": "SUPRARRENAL",
@@ -73,7 +81,8 @@
       "attenuation": 1.0,
       "mu0": 0.4,
       "mu1": 0.6,
-      "sigma": 0.3
+      "sigma": 0.3,
+      "specularity": 1.0
     },
     {
       "name": "GALLBLADDER",
@@ -81,7 +90,8 @@
       "attenuation": 1.0,
       "mu0": 0.4,
       "mu1": 0.6,
-      "sigma": 0.3
+      "sigma": 0.3,
+      "specularity": 1.0
     },
     {
       "name": "SKIN",
@@ -89,7 +99,8 @@
       "attenuation": 1.0,
       "mu0": 0.4,
       "mu1": 0.6,
-      "sigma": 0.3
+      "sigma": 0.3,
+      "specularity": 1.0
     }
   ],
   "meshes": [

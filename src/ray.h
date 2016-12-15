@@ -60,7 +60,7 @@ btVector3 snells_law(const btVector3 & ray_direction, const btVector3 & surface_
 float reflection_intensity(const float intensity_in, const float media_1, const float incidence_angle, const float media_2, const float refracted_angle);
 
 // Intensity reflected back to the transducer when a ray passes through an interface.
-float reflected_intensity(const float ray_intensity, const float incidence_angle, const material & media_1, const material & media_2);
+float reflected_intensity(const float ray_intensity, const float incidence_angle, const material & ray_media, const material & colliding_media);
 
 } // end ray_physics
 

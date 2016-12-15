@@ -6,7 +6,7 @@
 
 struct material
 {
-    float impedance, attenuation, mu0, mu1, sigma;
+    float impedance, attenuation, mu0, mu1, sigma, specularity;
 };
 
 struct mesh

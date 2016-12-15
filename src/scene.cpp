@@ -193,7 +193,8 @@ void scene::parse_config(const nlohmann::json & config)
                     mat.at("attenuation"),
                     mat.at("mu0"),
                     mat.at("mu1"),
-                    mat.at("sigma")
+                    mat.at("sigma"),
+                    mat.at("specularity")
                 };
         }
     }
