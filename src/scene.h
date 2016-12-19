@@ -5,6 +5,7 @@
 
 #include "ray.h"
 #include "mesh.h"
+#include "transducer.h"
 
 #include <ctime>
 #include <memory>
@@ -16,8 +17,10 @@
 
 class scene
 {
+    using transducer_ = transducer<256>;
+
 public:
-    explicit scene(const nlohmann::json & config);
+    explicit scene(const nlohmann::json & config, transducer_ & transducer);
     ~scene();
 
     void init();
@@ -38,7 +41,8 @@ protected:
 
     std::vector<mesh> meshes;
 
-    const float frequency { 5.0f };
+    transducer_ & transducer;
+
     const float intensity_epsilon { 1e-8 };
     const float initial_intensity { 1.0f };
 

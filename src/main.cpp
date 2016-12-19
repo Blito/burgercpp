@@ -2,6 +2,7 @@
 #include "volume.h"
 #include "psf.h"
 #include "rfimage.h"
+#include "transducer.h"
 
 #include <cmath>
 #include <iostream>
@@ -13,11 +14,14 @@ using namespace units::literals;
 using namespace units::velocity;
 using namespace units::length;
 using namespace units::time;
+using namespace units::angle;
 
 constexpr meters_per_second_t speed_of_sound = 1500_m / 1_s; // [μm/μs], [m/s]
 constexpr float transducer_frequency = 4.5f; // [Mhz]
 constexpr millimeter_t axial_resolution = millimeter_t(1.45f / transducer_frequency); // [mm], the division can be deduced from Burger13
 constexpr size_t transducer_elements = 256;
+constexpr radian_t transducer_amplitude = 60_deg;
+constexpr centimeter_t transducer_radius = 5_cm;
 constexpr centimeter_t ultrasound_depth = 15_cm; // [15cm -> μm]
 constexpr microsecond_t max_travel_time = microsecond_t(ultrasound_depth / speed_of_sound); // [μs]
 
@@ -25,6 +29,7 @@ constexpr unsigned int resolution = 145; // [μm], from Burger13
 using psf_ = psf<13, 7, 7, resolution>;
 using volume_ = volume<256, resolution>;
 using rf_image_ = rf_image<transducer_elements, max_travel_time.to<unsigned int>(), static_cast<unsigned int>(axial_resolution.to<float>()*1000.0f/*mm->μm*/)>;
+using transducer_ = transducer<transducer_elements>;
 
 namespace
 {
@@ -65,7 +70,7 @@ int main(int argc, char** argv)
 
     const psf_ psf { transducer_frequency, 0.1f, 0.3f, 0.4f };
 
-    rf_image_ rf_image;
+    rf_image_ rf_image { transducer_radius, transducer_amplitude };
 
     nlohmann::json json;
     {
@@ -74,10 +79,15 @@ int main(int argc, char** argv)
         json << infile;
     }
 
+    millimeter_t transducer_element_separation = transducer_amplitude.to<float>() * transducer_radius / transducer_elements;
+    transducer_ transducer(transducer_frequency, transducer_radius, transducer_element_separation,
+                           btVector3(-19.5, 1.2, -0.45), btVector3(1.0, 0.0, 0.0));
+
+    std::cout << max_travel_time << std::endl;
+
     try
     {
-        scene scene { json };
-        scene.init();
+        scene scene { json, transducer };
 
         scene.step(1000.0f);
         while(true)
@@ -111,8 +121,8 @@ int main(int argc, char** argv)
                         point += delta_step;
                         time_elapsed = time_elapsed + time_step;
 
-                        constexpr auto k = 0.05f;
-                        intensity *= std::exp(-segment.attenuation * axial_resolution.to<float>()*0.1f * transducer_frequency * k);
+                        constexpr auto k = 1.0f;
+                        intensity *= std::exp(-segment.attenuation * axial_resolution.to<float>()*0.01f * transducer_frequency * k);
                     }
 
                     // Add reflection term, i.e. intensity directly reflected back to the transducer. See Burger13, Eq. 10.
@@ -123,6 +133,8 @@ int main(int argc, char** argv)
             }
 
             rf_image.envelope();
+
+            rf_image.postprocess();
 
             rf_image.show();
         }

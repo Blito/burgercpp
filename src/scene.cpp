@@ -12,7 +12,8 @@
 
 template std::array<std::vector<ray_physics::segment>, 256> scene::cast_rays<256>();
 
-scene::scene(const nlohmann::json & config)
+scene::scene(const nlohmann::json & config, transducer_ & transducer) :
+    transducer(transducer)
 {
     try
     {
@@ -24,6 +25,8 @@ scene::scene(const nlohmann::json & config)
     }
 
     create_empty_world();
+
+    init();
 }
 
 scene::~scene()
@@ -81,15 +84,16 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
             {
                 ray first_ray
                 {
-                    transducer_pos + btVector3(0,0,ray_start_step * ray_i), // from
-                    transducer_dir,                                         // initial direction
-                    0,                                                      // depth
+                    //transducer_pos + btVector3(0,0,ray_start_step * ray_i),
+                    transducer.element(ray_i).position,                          // from
+                    transducer.element(ray_i).direction,                         // initial direction
+                    0,                                                           // depth
                     materials.at("GEL"),
                     nullptr,
                     initial_intensity,
-                    frequency,
-                    units::length::millimeter_t(0),                                                   // distance traveled
-                    0                                                    // previous ray
+                    transducer.frequency,
+                    units::length::millimeter_t(0),                              // distance traveled
+                    0                                                            // previous ray
                 };
                 ray_stack.push_back(first_ray);
             }
@@ -112,22 +116,21 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
 
                 if (closestResults.hasHit())
                 {
-                    // Substract ray intensity according to distance traveled
-                    auto distance_before_hit = ray_.distance_traveled;
-                    ray_physics::travel(ray_, distance_in_mm(ray_.from, closestResults.m_hitPointWorld));
-
-
                     if (ray_.depth < ray::max_depth)
                     {
-                        // Calculate refraction and reflection directions and intensities
+                        // Substract ray intensity according to distance traveled
+                        auto distance_before_hit = ray_.distance_traveled;
+                        auto intensity_before_hit = ray_.intensity;
+                        ray_physics::travel(ray_, distance_in_mm(ray_.from, closestResults.m_hitPointWorld));
 
+                        // Calculate refraction and reflection directions and intensities
                         const auto organ = static_cast<mesh*>(closestResults.m_collisionObject->getUserPointer());
                         assert(organ);
 
                         auto result = ray_physics::hit_boundary(ray_, closestResults.m_hitPointWorld, closestResults.m_hitNormalWorld, *organ);
 
                         // Register collision creating a segment from the beggining of the ray to the collision point
-                        segments_vector.emplace_back(segment{ray_.from, closestResults.m_hitPointWorld, ray_.direction, result.reflected_intensity, ray_.intensity, ray_.media.attenuation, distance_before_hit, ray_.media});
+                        segments_vector.emplace_back(segment{ray_.from, closestResults.m_hitPointWorld, ray_.direction, result.reflected_intensity, intensity_before_hit, ray_.media.attenuation, distance_before_hit, ray_.media});
 
                         // Spawn reflection and refraction rays
                         if (result.refraction.intensity > ray::intensity_epsilon)
@@ -146,7 +149,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                 else
                 {
                     // Ray did not reach another media, add a data point at its end.
-                    segments_vector.emplace_back(segment{ray_.from, to, ray_.direction, 0.0f, ray_.intensity, ray_.media.attenuation, ray_.distance_traveled + units::length::millimeter_t{r_length}, ray_.media});
+                    segments_vector.emplace_back(segment{ray_.from, to, ray_.direction, 0.0f, ray_.intensity, ray_.media.attenuation, ray_.distance_traveled, ray_.media});
                 }
             }
         }

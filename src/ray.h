@@ -30,7 +30,7 @@ struct segment
     float reflected_intensity; // reflected back to the transducer, at the end of the segment
     float initial_intensity, attenuation;
 
-    units::length::millimeter_t distance_traveled;
+    units::length::millimeter_t distance_traveled; // traveled from the transducer to the beginning of the segment
     const material & media;
 };
 

@@ -14,6 +14,7 @@ set (burgercpp_SRC
         "src/ray.cpp"
         "src/rfimage.h"
         "src/psf.h"
+        "src/transducer.h"
         "src/volume.h"
         "src/wavefront/tiny_obj_loader.cpp")
 
