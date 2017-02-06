@@ -6,12 +6,16 @@ Implementation of [Real-Time GPU-Based Ultrasound Simulation Using Deformable Me
 
 ---
 
-## Example scene
+## Some example scenes
 
-![Sphere scene 3D](http://i.imgur.com/b8Acetb.png)
+![Sphere scene 3D](http://i.imgur.com/U71zcBx.png)
 Test scene using a sphere of bone tissue inside a cube of liver tissue.
 
-![Sphere scene](http://i.imgur.com/OhOPUp3.png)
+![3D Phantom reconstruction](http://i.imgur.com/zmAoiSv.png)
+Simulation of a vessel structure between two layers of different tissue.
+
+![Real patient simulation](http://i.imgur.com/QBoGAID.png)
+Simulation of rays going through [Morison's pouch](https://en.wikipedia.org/wiki/Hepatorenal_recess_of_subhepatic_space). Visualization done using [this repo](https://github.com/Blito/bullet3).
 
 ---
 
