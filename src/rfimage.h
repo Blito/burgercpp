@@ -104,13 +104,13 @@ public:
 
     void show() const
     {
-        cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE );
-        cv::imshow("Display window", image );
+        //cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE );
+        //cv::imshow("Display window", image );
 
         cv::namedWindow("Scan Converted", cv::WINDOW_AUTOSIZE );
         cv::imshow("Scan Converted", scan_converted );
 
-        cv::waitKey(30);
+        cv::waitKey(0);
     }
 
     void clear()

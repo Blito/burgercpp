@@ -117,9 +117,9 @@ float ray_physics::reflection_intensity(const float intensity_in, const float me
 float ray_physics::reflected_intensity(const float ray_intensity, const float incidence_angle, const material & ray_media, const material & colliding_media)
 {
     // Eq. 10 in Burger13
-    constexpr auto small_reflections_enhancement_factor = 0.4;
+    constexpr auto small_reflections_enhancement_factor = 0.2;
 
-    constexpr auto custom_reflection_enhancement_factor = 0.05; // we made this up
+    constexpr auto custom_reflection_enhancement_factor = 0.001; // we made this up
 
     const auto specular_factor = std::pow(incidence_angle, colliding_media.specularity);
     const auto impedance_factor = std::pow(( (colliding_media.impedance - ray_media.impedance)

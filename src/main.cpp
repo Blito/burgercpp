@@ -19,14 +19,14 @@ using namespace units::angle;
 constexpr meters_per_second_t speed_of_sound = 1500_m / 1_s; // [μm/μs], [m/s]
 constexpr float transducer_frequency = 4.5f; // [Mhz]
 constexpr millimeter_t axial_resolution = millimeter_t(1.45f / transducer_frequency); // [mm], the division can be deduced from Burger13
-constexpr size_t transducer_elements = 256;
+constexpr size_t transducer_elements = 512;
 constexpr radian_t transducer_amplitude = 60_deg;
-constexpr centimeter_t transducer_radius = 5_cm;
+constexpr centimeter_t transducer_radius = 3_cm;
 constexpr centimeter_t ultrasound_depth = 15_cm; // [15cm -> μm]
 constexpr microsecond_t max_travel_time = microsecond_t(ultrasound_depth / speed_of_sound); // [μs]
 
-constexpr unsigned int resolution = 145; // [μm], from Burger13
-using psf_ = psf<13, 7, 7, resolution>;
+constexpr unsigned int resolution = 145;//145; // [μm], from Burger13
+using psf_ = psf<7, 7, 7, resolution>;
 using volume_ = volume<256, resolution>;
 using rf_image_ = rf_image<transducer_elements, max_travel_time.to<unsigned int>(), static_cast<unsigned int>(axial_resolution.to<float>()*1000.0f/*mm->μm*/)>;
 using transducer_ = transducer<transducer_elements>;
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 
     static const volume_ texture_volume;
 
-    const psf_ psf { transducer_frequency, 0.1f, 0.3f, 0.4f };
+    const psf_ psf { transducer_frequency, 0.05f, 0.1f, 0.1f };
 
     rf_image_ rf_image { transducer_radius, transducer_amplitude };
 
@@ -79,9 +79,16 @@ int main(int argc, char** argv)
         json << infile;
     }
 
+    const auto & t_pos = json.at("transducerPosition");
     millimeter_t transducer_element_separation = transducer_amplitude.to<float>() * transducer_radius / transducer_elements;
+
+    const auto & t_dir = json.at("transducerAngles");
+    std::array<units::angle::degree_t, 3> transducer_angles = {degree_t((float)t_dir[0]), degree_t((float)t_dir[1]), degree_t((float)t_dir[2])};
+
     transducer_ transducer(transducer_frequency, transducer_radius, transducer_element_separation,
-                           btVector3(-19.5, 1.2, -0.45), btVector3(1.0, 0.0, 0.0));
+                           btVector3(t_pos[0], t_pos[1], t_pos[2]), transducer_angles);
+    //btVector3(-17.0, 1.2, 6.45) // liver
+    //btVector3(-19.5, 1.2, -0.45) // kidney
 
     std::cout << max_travel_time << std::endl;
 
@@ -136,7 +143,7 @@ int main(int argc, char** argv)
 
             rf_image.postprocess();
 
-            rf_image.show();
+            //rf_image.show();
         }
     }
     catch (const std::exception & ex)

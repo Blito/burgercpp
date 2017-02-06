@@ -1,0 +1,130 @@
+{
+  "workingDirectory": "examples/tmi/",
+  "transducerPosition": [0, -8.1, 0],
+  "transducerAngles": [0, 90, 0],
+  "materials": [
+    {
+      "name": "GEL",
+      "impedance": 1.65,
+      "attenuation": 1e-8,
+      "mu0": 0.0,
+      "mu1": 0.0,
+      "sigma": 0.0,
+      "specularity": 1.0
+    },
+    {
+      "name": "AIR",
+      "impedance": 0.0004,
+      "attenuation": 1.64,
+      "mu0": 0.78,
+      "mu1": 0.56,
+      "sigma": 0.1,
+      "specularity": 1.0
+    },
+    {
+      "name": "FAT",
+      "impedance": 1.38,
+      "attenuation": 0.63,
+      "mu0": 0.5,
+      "mu1": 0.5,
+      "sigma": 0.0,
+      "specularity": 1.0
+    },
+    {
+      "name": "LIVER",
+      "impedance": 1.65,
+      "attenuation": 0.7,
+      "mu0": 0.01,
+      "mu1": 1.0,
+      "sigma": 0.1,
+      "specularity": 1.0
+    },
+    {
+      "name": "BONE",
+      "impedance": 7.8,
+      "attenuation": 5.0,
+      "mu0": 0.78,
+      "mu1": 0.56,
+      "sigma": 0.1,
+      "specularity": 1.0
+    },
+    {
+      "name": "BLOOD",
+      "impedance": 1.61,
+      "attenuation": 0.18,
+      "mu0": 0.001,
+      "mu1": 0.0,
+      "sigma": 0.01,
+      "specularity": 1.0
+    },
+    {
+      "name": "VESSEL",
+      "impedance": 1.99,
+      "attenuation": 1.09,
+      "mu0": 0.2,
+      "mu1": 0.1,
+      "sigma": 0.2,
+      "specularity": 1.0
+    },
+    {
+      "name": "KIDNEY",
+      "impedance": 1.62,
+      "attenuation": 0.3,
+      "mu0": 1.0,
+      "mu1": 0.5,
+      "sigma": 0.4,
+      "specularity": 1.0
+    },
+    {
+      "name": "SUPRARRENAL",
+      "impedance": 1.62,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3,
+      "specularity": 1.0
+    },
+    {
+      "name": "GALLBLADDER",
+      "impedance": 1.62,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3,
+      "specularity": 1.0
+    },
+    {
+      "name": "SKIN",
+      "impedance": 1.99,
+      "attenuation": 1.0,
+      "mu0": 0.4,
+      "mu1": 0.6,
+      "sigma": 0.3,
+      "specularity": 1.0
+    }
+  ],
+  "meshes": [
+    {
+      "file": "caja_z_flipped.obj",
+      "rigid": true,
+      "vascular": false,
+      "deltas": [0.0,0.0,0.0],
+      "material": "LIVER",
+      "outsideMaterial": "KIDNEY",
+      "outsideNormals": false
+    },
+    {
+      "file": "cilindro_z_flipped.obj",
+      "rigid": true,
+      "vascular": true,
+      "deltas": [0.0,0.0,0.0],
+      "material": "BLOOD",
+      "outsideMaterial": "KIDNEY",
+      "outsideNormals": false
+    }
+  ],
+  "origin": [0.0, 0.0, 0.0],
+  "spacing": [1.0,1.0,1.0],
+  "startingMaterial": "GEL",
+  "scaling": 0.1
+}

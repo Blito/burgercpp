@@ -3,14 +3,13 @@
 #include "objloader.h"
 #include "ray.h"
 
-#include <units/units.h>
-
 #include <cmath>
 #include <iostream>
 #include <cassert>
 #include <exception>
 
-template std::array<std::vector<ray_physics::segment>, 256> scene::cast_rays<256>();
+//template std::array<std::vector<ray_physics::segment>, 256> scene::cast_rays<256>();
+template std::array<std::vector<ray_physics::segment>, 512> scene::cast_rays<512>();
 
 scene::scene(const nlohmann::json & config, transducer_ & transducer) :
     transducer(transducer)
@@ -44,12 +43,6 @@ void scene::init()
 
         object->setUserPointer(&mesh);
     }
-}
-
-void scene::set_transducer(const btVector3 & position, const btVector3 & direction)
-{
-    transducer_pos = position;
-    transducer_dir = direction;
 }
 
 template<unsigned int ray_count>
@@ -88,7 +81,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
                     transducer.element(ray_i).position,                          // from
                     transducer.element(ray_i).direction,                         // initial direction
                     0,                                                           // depth
-                    materials.at("GEL"),
+                    materials.at(starting_material),
                     nullptr,
                     initial_intensity,
                     transducer.frequency,
@@ -160,7 +153,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
         }
     }
 
-    const float fps = 1.0f / (float( clock() - frame_start ) /  CLOCKS_PER_SEC);
+    const float fps = (float( clock() - frame_start ) /  CLOCKS_PER_SEC);
     std::cout << fps << " " << tests << " " << total_collisions << std::endl;
     frame_start = clock();
 
@@ -169,19 +162,20 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
 
 void scene::parse_config(const nlohmann::json & config)
 {
+    using namespace units::angle;
+
     working_dir = config.find("workingDirectory") != config.end() ? config.at("workingDirectory") : "";
 
     const auto & t_pos = config.at("transducerPosition");
     transducer_pos = {t_pos[0], t_pos[1], t_pos[2]};
-
-    const auto & t_dir = config.at("transducerDirection");
-    transducer_dir = {t_dir[0], t_dir[1], t_dir[2]};
 
     const auto & orig = config.at("origin");
     origin = {orig[0], orig[1], orig[2]};
 
     const auto & spac = config.at("spacing");
     spacing = {spac[0], spac[1], spac[2]};
+
+    starting_material = config.at("startingMaterial");
 
     scaling = config.at("scaling");
 

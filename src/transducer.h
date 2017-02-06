@@ -22,31 +22,37 @@ public:
     };
 
     transducer(const float frequency, const units::length::centimeter_t radius, units::length::millimeter_t transducer_element_separation,
-               const btVector3 position, const btVector3 direction) :
+               const btVector3 & position, const std::array<units::angle::degree_t, 3> & angles) :
         frequency(frequency),
         radius(radius),
         position(position),
-        direction(direction)
+        angles(angles)
     {
         using namespace units::angle;
         using namespace units::literals;
 
         assert(transducer_element_separation * transducer_elements < M_PI * radius);
 
-        radian_t starting_angle { 90_deg };
+        radian_t x_angle { angles[0] };
+        radian_t y_angle { angles[1] };
+        radian_t z_angle { angles[2] };
 
         auto amp = transducer_element_separation / radius;
         const radian_t amplitude { amp.to<float>() }; // angle covered by a single TE
         const radian_t angle_center_of_element { amplitude / 2.0f };
 
-        radian_t angle = starting_angle + -(amplitude * transducer_elements / 2) + angle_center_of_element;
+        radian_t angle = -(amplitude * transducer_elements / 2) + angle_center_of_element;
 
         for (size_t t = 0; t < transducer_elements; t++)
         {
             elements[t] = transducer_element
             {
-                position + radius.to<float>() * btVector3 ( std::sin(angle.to<float>()), 0, std::cos(angle.to<float>()) ), // position
-                btVector3 ( std::sin(angle.to<float>()), 0, std::cos(angle.to<float>()) )  // direction
+                position + radius.to<float>() * btVector3 ( std::sin(angle.to<float>()), std::cos(angle.to<float>()), 0 ).rotate(btVector3(0,0,1), z_angle.to<float>())
+                                                                                                                         .rotate(btVector3(1,0,0), x_angle.to<float>())
+                                                                                                                         .rotate(btVector3(0,1,0), y_angle.to<float>()), // position
+                btVector3 ( std::sin(angle.to<float>()), std::cos(angle.to<float>()), 0 ).rotate(btVector3(0,0,1), z_angle.to<float>())
+                                                                                         .rotate(btVector3(1,0,0), x_angle.to<float>())
+                                                                                         .rotate(btVector3(0,1,0), y_angle.to<float>())  // direction
             };
 
             angle = angle + amplitude;
@@ -75,6 +81,7 @@ public:
     const float frequency;
 
     const btVector3 position, direction;
+    const std::array<units::angle::degree_t, 3> angles;
 
 private:
     const units::length::millimeter_t radius;

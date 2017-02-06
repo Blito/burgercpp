@@ -14,18 +14,17 @@
 #include <vector>
 
 #include <nlohmann/json.hpp>
+#include <units/units.h>
 
 class scene
 {
-    using transducer_ = transducer<256>;
+    using transducer_ = transducer<512>;
 
 public:
     explicit scene(const nlohmann::json & config, transducer_ & transducer);
     ~scene();
 
     void init();
-
-    void set_transducer(const btVector3 & position, const btVector3 & direction);
 
     template<unsigned int ray_count>
     std::array<std::vector<ray_physics::segment>, ray_count> cast_rays();
@@ -38,6 +37,7 @@ protected:
     std::string working_dir;
 
     std::unordered_map<std::string, material> materials;
+    std::string starting_material;
 
     std::vector<mesh> meshes;
 
@@ -67,7 +67,9 @@ protected:
     std::unique_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;
     std::unique_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
 
-    btVector3 transducer_pos, transducer_dir;
+    btVector3 transducer_pos;
+    std::array<units::angle::degree_t, 3> transducer_dir;
+
     clock_t frame_start;
 };
 
