@@ -6,6 +6,8 @@
 #include <array>
 #include <units/units.h>
 
+#include "psf.h"
+
 /**
  * Radio-frequency image.
  *
@@ -19,20 +21,21 @@ class rf_image
 {
 public:
     rf_image(units::length::millimeter_t radius, units::angle::radian_t angle) :
-        image(max_rows, columns, CV_32FC1),
+        intensities(max_rows, columns, CV_32FC1),
+        conv_axial_buffer(max_rows, columns, CV_32FC1),
         scan_converted(400, 500, CV_32FC1)
     {
         std::cout << "rf_image: " << max_rows << ", " << columns << std::endl;
         create_mapping(radius, angle, columns, max_rows);
     }
 
-    void add_echo(const unsigned int column, const float echo_intensity, const units::time::microsecond_t micros_from_source)
+    void add_echo(const unsigned int column, const float echo, const units::time::microsecond_t micros_from_source)
     {
         const units::dimensionless::dimensionless_t row = micros_from_source / (axial_resolution_ / speed_of_sound_);
 
         if (row < max_rows)
         {
-            image.at<float>(row, column) += echo_intensity;
+            intensities.at<float>(row, column) += echo;
         }
     }
 
@@ -56,12 +59,12 @@ public:
 
         for (size_t column = 0; column < columns; column++)
         {
-            bool ascending = image.at<float>(0, column) < image.at<float>(1, column);
+            bool ascending = intensities.at<float>(0, column) < intensities.at<float>(1, column);
             size_t last_peak_pos = 0;
-            float last_peak = image.at<float>(last_peak_pos, column);
+            float last_peak = intensities.at<float>(last_peak_pos, column);
             for (size_t i = 1; i < max_rows-1; i++)
             {
-                if (image.at<float>(i, column) < image.at<float>(i+1, column))
+                if (intensities.at<float>(i, column) < intensities.at<float>(i+1, column))
                 {
                     ascending = true;
                 }
@@ -69,7 +72,7 @@ public:
                 // if it was ascending and now descended, we found a concave point at i
                 {
                     ascending = false;
-                    const float new_peak = std::abs(image.at<float>(i, column));
+                    const float new_peak = std::abs(intensities.at<float>(i, column));
 
                     // lerp last_peak -> new_peak over last_peak_pos -> i (new_peak_pos)
                     for (size_t j = last_peak_pos; j < i; j++)
@@ -77,7 +80,7 @@ public:
                         const float alpha = (static_cast<float>(j) - static_cast<float>(last_peak_pos)) /
                                             (static_cast<float>(i) - static_cast<float>(last_peak_pos));
 
-                        image.at<float>(j, column) = last_peak * (1-alpha) + new_peak * alpha;
+                        intensities.at<float>(j, column) = last_peak * (1-alpha) + new_peak * alpha;
                     }
 
                     last_peak_pos = i;
@@ -87,19 +90,58 @@ public:
         }
     }
 
+    template <typename psf_>
+    void convolve(const psf_ & p)
+    {
+        // Convolve using only axial kernel and store in intermediate buffer
+        for (int col = 0; col < intensities.cols; col++) //each column is a different TE
+        {
+            for (int row = p.get_axial_size(); row < intensities.rows - p.get_axial_size(); row++) // each row holds information from along a ray
+            {
+                float convolution = 0;
+                for (int kernel_i = 0; kernel_i < p.get_axial_size(); kernel_i++)
+                {
+                    convolution += intensities.at<float>(row + kernel_i, col) * p.axial_kernel[kernel_i];
+                }
+                conv_axial_buffer.at<float>(row,col) = convolution;
+            }
+        }
+
+        // Convolve intermediate buffer using lateral kernel
+        for (int row = p.get_axial_size(); row < conv_axial_buffer.rows - p.get_axial_size(); row++) // each row holds information from along a ray
+        {
+            for (int col = p.get_lateral_size() / 2; col < conv_axial_buffer.cols - p.get_lateral_size(); col++) //each column is a different TE
+            {
+                float convolution = 0;
+                for (int kernel_i = 0; kernel_i < p.get_lateral_size(); kernel_i++)
+                {
+                    convolution += conv_axial_buffer.at<float>(row, col + kernel_i) * p.lateral_kernel[kernel_i];
+                }
+                intensities.at<float>(row,col) = convolution;
+            }
+        }
+    }
+
     void postprocess()
     {
         double min, max;
-        cv::minMaxLoc(image, &min, &max);
+        cv::minMaxLoc(intensities, &min, &max);
+
+        save("prelog.png");
 
         for (size_t i = 0; i < max_rows * columns; i++)
         {
-            image.at<float>(i) = std::log10(image.at<float>(i)+1)/std::log10(max+1);
+            intensities.at<float>(i) = std::log10(intensities.at<float>(i)+1)/std::log10(max+1);
         }
 
         // apply scan conversion using preprocessed mapping
         constexpr float invalid_color = 0.0f;
-        cv::remap(image, scan_converted, map_y, map_x, CV_INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(invalid_color));
+        cv::remap(intensities, scan_converted, map_y, map_x, CV_INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(invalid_color));
+    }
+
+    void save(const std::string & filename) const
+    {
+        cv::imwrite(filename, intensities);
     }
 
     void show() const
@@ -110,19 +152,19 @@ public:
         cv::namedWindow("Scan Converted", cv::WINDOW_AUTOSIZE );
         cv::imshow("Scan Converted", scan_converted );
 
-        cv::waitKey(0);
+        cv::waitKey(16);
     }
 
     void clear()
     {
-        image.setTo(0.0f);
+        intensities.setTo(0.0f);
     }
 
     void print(size_t column) const
     {
         for (size_t i = 0; i < max_rows; i++)
         {
-            std::cout << image.at<float>(i, column) << ", ";
+            std::cout << intensities.at<float>(i, column) << ", ";
         }
         std::cout << std::endl;
     }
@@ -169,8 +211,9 @@ private:
         }
     }
 
-    cv::Mat image;
+    cv::Mat intensities;
     cv::Mat scan_converted;
+    cv::Mat conv_axial_buffer;
 
     // Mapping used for scan conversion
     cv::Mat map_x, map_y;

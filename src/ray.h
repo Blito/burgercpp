@@ -20,7 +20,7 @@ struct ray
     units::length::millimeter_t distance_traveled; // [mm]
     unsigned short parent_collision; // position in collision vector
 
-    static constexpr size_t max_depth = 3;
+    static constexpr size_t max_depth = 12;
     static constexpr float intensity_epsilon = 1e-10;
 };
 

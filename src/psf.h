@@ -42,18 +42,18 @@ public:
         constexpr auto half_elevation = elevation_size * resolution_micrometers / 1000.0f / 2.0f; // [mm]
         constexpr auto resolution = resolution_micrometers / 1000.0f; // [mm]
 
+        // Fill axial kernel
         for (size_t i = 0; i < axial_size; i++)
         {
             const float x = i * resolution - half_axial; // [mm]
-            for (size_t j = 0; j < lateral_size; j++)
-            {
-                const float y = j * resolution - half_lateral; // [mm]
-                for (size_t k = 0; k < elevation_size; k++)
-                {
-                    const float z = k * resolution - half_elevation; // [mm]
-                    values[i][j][k] = function(x,y,z);
-                }
-            }
+            axial_kernel[i] = axial_function(x);
+        }
+
+        // Fill lateral kernel
+        for (size_t i = 0; i < lateral_size; i++)
+        {
+            const float y = i * resolution - half_lateral; // [mm]
+            lateral_kernel[i] = lateral_function(y);
         }
     }
 
@@ -72,20 +72,24 @@ public:
         return elevation_size;
     }
 
-    float get(const unsigned int x, const unsigned int y, const unsigned int z) const
-    {
-        return values[x][y][z];
-    }
+    std::array<float, axial_size> axial_kernel;
+    std::array<float, lateral_size> lateral_kernel;
+    std::array<float, elevation_size> elevation_kernel;
 
 private:
-    float function(const float x, const float y, const float z) const
+    float axial_function(const float x) const
     {
         using namespace std;
 
-        return exp(-0.5f*(pow(x,2)/var_x + pow(y,2)/var_y + pow(z,2)/var_z))*cos(2*M_PI*freq*x);
+        return exp(-0.5f*(pow(x,2)/var_x))*cos(2*M_PI*freq*x);
     }
 
-    std::array<std::array<std::array<float, elevation_size>, lateral_size>, axial_size> values;
+    float lateral_function(const float y) const
+    {
+        using namespace std;
+
+        return exp(-0.5f*(pow(y,2)/var_y));
+    }
 
     const float var_x, var_y, var_z;
     const float freq;

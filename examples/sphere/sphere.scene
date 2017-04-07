@@ -1,7 +1,7 @@
 {
   "workingDirectory": "examples/sphere/",
-  "transducerPosition": [-10.5, 1.2, -3.0],
-  "transducerDirection": [1.0, 0.0, 0.0],
+  "transducerPosition": [-13.5, 0.0, 0.0],
+  "transducerAngles": [0.0, 0.0, -90.0],
   "materials": [
     {
       "name": "GEL",
@@ -125,5 +125,6 @@
   ],
   "origin": [0.0, 0.0, 0.0],
   "spacing": [1.0,1.0,1.0],
-  "scaling": 1.0
+  "scaling": 1.0,
+  "startingMaterial": "GEL"
 }

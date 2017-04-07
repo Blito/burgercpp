@@ -26,37 +26,10 @@ constexpr centimeter_t ultrasound_depth = 15_cm; // [15cm -> μm]
 constexpr microsecond_t max_travel_time = microsecond_t(ultrasound_depth / speed_of_sound); // [μs]
 
 constexpr unsigned int resolution = 145;//145; // [μm], from Burger13
-using psf_ = psf<7, 7, 7, resolution>;
+using psf_ = psf<7, 13, 7, resolution>;
 using volume_ = volume<256, resolution>;
 using rf_image_ = rf_image<transducer_elements, max_travel_time.to<unsigned int>(), static_cast<unsigned int>(axial_resolution.to<float>()*1000.0f/*mm->μm*/)>;
 using transducer_ = transducer<transducer_elements>;
-
-namespace
-{
-    float convolution(const volume_ & v, const material & m, const psf_ & p, const float x, const float y, const float z)
-    {
-        float total = 0.0f;
-
-        for (size_t i = 0; i < p.get_axial_size(); i++)
-        {
-            float x_volume = x + i - p.get_axial_size()/2 * v.get_resolution_in_millis();
-
-            for (size_t j = 0; j < p.get_lateral_size(); j++)
-            {
-                float y_volume = y + j - p.get_lateral_size()/2 * v.get_resolution_in_millis();
-
-                for (size_t k = 0; k < p.get_elevation_size(); k++)
-                {
-                    float z_volume = z + k - p.get_elevation_size()/2 * v.get_resolution_in_millis();
-
-                    total += v.get_scattering(m.mu1, m.mu0, m.sigma, x_volume, y_volume, z_volume) * p.get(i,j,k);
-                }
-            }
-        }
-
-        return total;
-    }
-}
 
 int main(int argc, char** argv)
 {
@@ -68,7 +41,7 @@ int main(int argc, char** argv)
 
     static const volume_ texture_volume;
 
-    const psf_ psf { transducer_frequency, 0.05f, 0.1f, 0.1f };
+    const psf_ psf { transducer_frequency, 0.05f, 0.2f, 0.1f };
 
     rf_image_ rf_image { transducer_radius, transducer_amplitude };
 
@@ -120,9 +93,9 @@ int main(int argc, char** argv)
 
                     for (unsigned int step = 0; step < steps && time_elapsed < max_travel_time; step++)
                     {
-                        float echo = intensity * convolution(texture_volume, segment.media, psf, point.getX(), point.getY(), point.getZ());
+                        float scattering = texture_volume.get_scattering(segment.media.mu1, segment.media.mu0, segment.media.sigma, point.x(), point.y(), point.z());
 
-                        rf_image.add_echo(ray_i, echo, time_elapsed);
+                        rf_image.add_echo(ray_i, intensity * scattering, time_elapsed);
 
                         // Step forward through the segment, decreasing intensity using Beer-Lambert's law
                         point += delta_step;
@@ -139,11 +112,13 @@ int main(int argc, char** argv)
 
             }
 
+            rf_image.convolve(psf);
+
             rf_image.envelope();
 
             rf_image.postprocess();
 
-            //rf_image.show();
+            rf_image.show();
         }
     }
     catch (const std::exception & ex)

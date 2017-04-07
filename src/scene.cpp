@@ -153,7 +153,7 @@ std::array<std::vector<ray_physics::segment>, ray_count> scene::cast_rays()
         }
     }
 
-    const float fps = (float( clock() - frame_start ) /  CLOCKS_PER_SEC);
+    const float fps = 1.0f/(float( clock() - frame_start ) /  CLOCKS_PER_SEC);
     std::cout << fps << " " << tests << " " << total_collisions << std::endl;
     frame_start = clock();
 
